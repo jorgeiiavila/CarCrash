@@ -2,6 +2,7 @@ package com.jorgeiiavila.carcrash;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Paint;
 
 /**
  * Created by jorge on 4/9/2018.
@@ -14,8 +15,9 @@ public class Background extends Item {
 
     public Background(Bitmap bitmap, int x, int y, int width, int height, int speed) {
         super(bitmap, x, y, width, height, speed);
+        this.bitmap = Bitmap.createScaledBitmap(bitmap, width, height, false);
         background2 = Bitmap.createScaledBitmap(bitmap, width, height, false);
-        y2 = 0 - background2.getHeight();
+        y2 = -background2.getHeight();
     }
 
     @Override
@@ -30,11 +32,11 @@ public class Background extends Item {
         y2 += speed;
 
         if (y > bitmap.getHeight()) {
-            y = 0 - bitmap.getHeight();
+            y = -bitmap.getHeight();
         }
 
         if (y2 > bitmap.getHeight()) {
-            y2 = 0 - background2.getHeight();
+            y2 = -background2.getHeight();
         }
     }
 }

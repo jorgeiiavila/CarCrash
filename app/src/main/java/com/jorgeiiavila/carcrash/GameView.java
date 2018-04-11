@@ -2,11 +2,17 @@ package com.jorgeiiavila.carcrash;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Rect;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+
+import java.util.ArrayList;
+
+import static android.graphics.Bitmap.Config.ARGB_8888;
 
 /**
  * Created by jorge on 4/9/2018.
@@ -16,6 +22,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
     private com.jorgeiiavila.carcrash.MainThread thread; // Thread
     private Player player; // Player object
+    private ArrayList<Enemy> enemies; // Enemies arraylist
     private Background background; // Background object
     private boolean move; // Indicates if the player must move
     private int x; // Position in x where the user clicked
@@ -44,8 +51,16 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
         thread.start();
         screenWidth = Resources.getSystem().getDisplayMetrics().widthPixels;
         screenHeight = Resources.getSystem().getDisplayMetrics().heightPixels;
-        player = new Player(BitmapFactory.decodeResource(getResources(), R.drawable.car), screenWidth / 2 - 100 / 2, screenHeight - 100 - 200, 100, 147, 2);
-        background = new Background(BitmapFactory.decodeResource(getResources(), R.drawable.highway), 0, 0, 720, 1280, 10);
+
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inScaled = false;
+        Bitmap playerBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.player_red, options);
+        player = new Player(playerBitmap, 6);
+        enemies = new ArrayList<>();
+        for (int i = 0; i < 5; i ++) {
+            enemies.add(new Enemy(BitmapFactory.decodeResource(getResources(), R.drawable.police, options), 10));
+        }
+        background = new Background(BitmapFactory.decodeResource(getResources(), R.drawable.background, options), 0, 0, screenWidth, screenHeight, 10);
     }
 
     /**
@@ -91,8 +106,18 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
             }
         }
 
+        // Checks player collision
+        for (int i = 0; i < enemies.size(); i++) {
+            if (player.intersects(enemies.get(i).getBounds())) {
+                enemies.get(i).restoreEnemy();
+            }
+        }
+
         // Update values
         player.update();
+        for (int i = 0; i < enemies.size(); i++) {
+            enemies.get(i).update();
+        }
         background.update();
     }
 
@@ -104,6 +129,9 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
     public void draw(Canvas canvas) {
         super.draw(canvas);
         background.draw(canvas);
+        for (int i = 0; i < enemies.size(); i++) {
+            enemies.get(i).draw(canvas);
+        }
         player.draw(canvas);
     }
 

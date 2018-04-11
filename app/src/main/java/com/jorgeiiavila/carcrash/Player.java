@@ -14,10 +14,14 @@ public class Player extends Item{
     int screenHeight; // height of the phone screen
     private boolean touched;
 
-    public Player(Bitmap bitmap, int x, int y, int width, int height, int speed) {
-        super(bitmap, x, y, width, height, speed);
+    public Player(Bitmap bitmap, int speed) {
+        super(bitmap, speed);
+        this.height = bitmap.getHeight();
+        this.width = bitmap.getWidth();
         screenWidth = Resources.getSystem().getDisplayMetrics().widthPixels;
         screenHeight = Resources.getSystem().getDisplayMetrics().heightPixels;
+        this.y = screenHeight / 2 - this.height / 2;
+        this.x = screenWidth / 2 - this.width / 2;
     }
 
     public boolean isTouched() {

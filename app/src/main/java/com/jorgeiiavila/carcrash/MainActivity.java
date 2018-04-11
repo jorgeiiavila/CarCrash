@@ -54,6 +54,15 @@ public class MainActivity extends Activity {
                 MainActivity.this.startActivity(intent);
             }
         });
+
+        // Change Car button listener
+        changeCarBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this, ChangeCarActivity.class);
+                MainActivity.this.startActivity(intent);
+            }
+        });
     }
 
 }

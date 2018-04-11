@@ -22,13 +22,26 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="10dp"
+        android:fontFamily="@font/ubuntu_font"
         android:text="SETTINGS"
         android:textAlignment="center"
         android:textColor="@android:color/white"
         android:textSize="25sp"
         android:textStyle="bold"
+        android:typeface="normal"
         app:layout_constraintBottom_toBottomOf="@+id/settingsBackBtn"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/settingsBackBtn" />
+
+    <Button
+        android:id="@+id/settings_credits_btn"
+        android:layout_width="184dp"
+        android:layout_height="40dp"
+        android:layout_marginBottom="80dp"
+        android:background="@color/carCrashGreen"
+        android:text="CREDITS"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 </android.support.constraint.ConstraintLayout>

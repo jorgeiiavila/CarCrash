@@ -97,7 +97,8 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
      * Update the objects values
      */
     public void update() {
-        // Move the player if asked
+
+        // Moves the player if asked
         if (move) {
             if (x < screenWidth / 2) {
                 player.setX(player.getX() - 10);
@@ -106,14 +107,14 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
             }
         }
 
-        // Checks player collision
+        // Checks player collision with enemies
         for (int i = 0; i < enemies.size(); i++) {
             if (player.intersects(enemies.get(i).getBounds())) {
                 enemies.get(i).restoreEnemy();
             }
         }
 
-        // Update values
+        // Updates values
         player.update();
         for (int i = 0; i < enemies.size(); i++) {
             enemies.get(i).update();

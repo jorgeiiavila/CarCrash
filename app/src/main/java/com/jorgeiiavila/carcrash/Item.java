@@ -3,7 +3,6 @@ package com.jorgeiiavila.carcrash;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Rect;
-import android.support.constraint.solver.widgets.Rectangle;
 
 /**
  * Created by jorge on 4/9/2018.
@@ -19,6 +18,15 @@ public abstract class Item {
     protected int height; // Height of the object
     protected int speed; // speed of the item
 
+    /**
+     * Item full constructor
+     * @param bitmap
+     * @param x
+     * @param y
+     * @param width
+     * @param height
+     * @param speed
+     */
     public Item(Bitmap bitmap, int x, int y, int width, int height, int speed) {
         this.bitmap = bitmap;
         this.x = x;
@@ -29,60 +37,57 @@ public abstract class Item {
         this.bounds = new Rect(x,y,x+width,y+height);
     }
 
+    /**
+     * Item partial constructor
+     * @param bitmap image of the character
+     * @param speed speed of the character
+     */
     public Item(Bitmap bitmap, int speed) {
         this.bitmap = bitmap;
         this.speed = speed;
     }
 
+    /**
+     * Get the x position of the item
+     * @return
+     */
     public int getX() {
         return x;
     }
 
+    /**
+     * Sets the x position of the player
+     * @param x
+     */
     public void setX(int x) {
         this.x = x;
     }
 
-    public int getWidth() {
-        return width;
-    }
-
-    public void setWidth(int width) {
-        this.width = width;
-    }
-
-    public int getHeight() {
-        return height;
-    }
-
-    public void setHeight(int height) {
-        this.height = height;
-    }
-
-    public int getY() {
-        return y;
-    }
-
-    public void setY(int y) {
-        this.y = y;
-    }
-
-    public int getSpeed() {
-        return speed;
-    }
-
-    public void setSpeed(int speed) {
-        this.speed = speed;
-    }
-
+    /**
+     * Get the item character bounds
+     * @return
+     */
     public Rect getBounds () {
         return new Rect(x+((int)(0.47*width)),y+((int)(0.44*width)),x+width-((int)(0.47*width)),y+height-((int)(0.44*width)));
     }
 
+    /**
+     * Checks if the item intrsecter the param
+     * @param bounds of another item
+     * @return if the items intersected
+     */
     public boolean intersects(Rect bounds) {
         return this.getBounds().intersect(bounds);
     }
 
+    /**
+     * Draws the item
+     * @param canvas
+     */
     public abstract void draw(Canvas canvas);
 
+    /**
+     * Ticks item
+     */
     public abstract void update();
 }

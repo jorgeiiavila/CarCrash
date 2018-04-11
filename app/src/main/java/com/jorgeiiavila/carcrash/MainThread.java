@@ -82,6 +82,10 @@ public class MainThread extends Thread {
         }
     }
 
+    /**
+     * Sets if thread is running
+     * @param isRunning
+     */
     public void setRunning(boolean isRunning) {
         this.running = isRunning;
     }

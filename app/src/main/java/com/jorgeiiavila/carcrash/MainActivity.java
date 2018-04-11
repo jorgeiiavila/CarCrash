@@ -27,12 +27,13 @@ public class MainActivity extends Activity {
         // Removes status bar
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
         setContentView(R.layout.activity_main);
 
         // Relating declared buttons to xml buttons
-        this.playBtn = findViewById(R.id.playBtn);
-        this.settingsBtn = findViewById(R.id.settingsBtn);
-        this.changeCarBtn = findViewById(R.id.changeCarBtn);
+        this.playBtn = findViewById(R.id.mainPlayBtn);
+        this.settingsBtn = findViewById(R.id.mainSettingsBtn);
+        this.changeCarBtn = findViewById(R.id.mainChangeCarBtn);
 
         // Play button listener
         playBtn.setOnClickListener(new View.OnClickListener() {
@@ -40,6 +41,16 @@ public class MainActivity extends Activity {
             public void onClick(View view) {
                 // Creates and execute relation between activities
                 Intent intent = new Intent(MainActivity.this, GameActivity.class);
+                MainActivity.this.startActivity(intent);
+            }
+        });
+
+        // Settings button listener
+        settingsBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // Creates and execute relation between activities
+                Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
                 MainActivity.this.startActivity(intent);
             }
         });

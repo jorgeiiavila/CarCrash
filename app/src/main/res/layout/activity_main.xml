@@ -8,7 +8,7 @@
     tools:context="com.jorgeiiavila.carcrash.MainActivity">
 
     <Button
-        android:id="@+id/playBtn"
+        android:id="@+id/mainPlayBtn"
         android:layout_width="105dp"
         android:layout_height="107dp"
         android:layout_marginBottom="43dp"
@@ -18,7 +18,7 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <Button
-        android:id="@+id/changeCarBtn"
+        android:id="@+id/mainChangeCarBtn"
         android:layout_width="45dp"
         android:layout_height="47dp"
         android:layout_marginBottom="73dp"
@@ -28,7 +28,7 @@
         app:layout_constraintEnd_toEndOf="parent" />
 
     <Button
-        android:id="@+id/settingsBtn"
+        android:id="@+id/mainSettingsBtn"
         android:layout_width="45dp"
         android:layout_height="47dp"
         android:layout_marginBottom="73dp"
@@ -38,13 +38,57 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <ImageView
-        android:id="@+id/carImg"
+        android:id="@+id/mainCarImg"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
         android:src="@drawable/player_red"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/mainPlayBtn"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/mainScoreTextView" />
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="64dp"
+        android:lineSpacingExtra="-12sp"
+        android:text="CAR\nCRASH"
+        android:textAlignment="center"
+        android:textColor="@android:color/white"
+        android:textSize="41sp"
+        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:text="HIGHSCORE"
+        android:textAlignment="center"
+        android:textColor="@android:color/darker_gray"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView" />
+
+    <TextView
+        android:id="@+id/mainScoreTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:text="0"
+        android:textAlignment="center"
+        android:textColor="@color/carCrashGreen"
+        android:textSize="46sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView2" />
 </android.support.constraint.ConstraintLayout>

@@ -5,14 +5,13 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Rect;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
 import java.util.ArrayList;
-
-import static android.graphics.Bitmap.Config.ARGB_8888;
 
 /**
  * Created by jorge on 4/9/2018.
@@ -26,8 +25,11 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
     private Background background; // Background object
     private boolean move; // Indicates if the player must move
     private int x; // Position in x where the user clicked
-    int screenWidth; // Device screen width
-    int screenHeight; // Device screen height
+    private int screenWidth; // Device screen width
+    private int screenHeight; // Device screen height
+    private int score; // Score of the game
+    private boolean gameEnded; // Controls if the game ended
+    private boolean paused; // Controls if the game is paused
 
     /**
      * Contructor of GameView
@@ -131,6 +133,10 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
             enemies.get(i).draw(canvas);
         }
         player.draw(canvas);
+        Paint paint = new Paint();
+        paint.setColor(Color.WHITE);
+        paint.setTextSize(20);
+        canvas.drawText("SCORE: " + score, 100, 100, paint);
     }
 
     /**

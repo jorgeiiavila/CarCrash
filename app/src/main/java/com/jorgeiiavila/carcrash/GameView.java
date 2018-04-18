@@ -58,7 +58,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
         player = new Player(playerBitmap, 6);
         enemies = new ArrayList<>();
         for (int i = 0; i < 5; i ++) {
-            enemies.add(new Enemy(BitmapFactory.decodeResource(getResources(), R.drawable.police, options), 10));
+            enemies.add(new Enemy(BitmapFactory.decodeResource(getResources(), R.drawable.police_blue, options), BitmapFactory.decodeResource(getResources(), R.drawable.police_down_blue, options), 10));
         }
         background = new Background(BitmapFactory.decodeResource(getResources(), R.drawable.background, options), 0, 0, screenWidth, screenHeight, 10);
     }

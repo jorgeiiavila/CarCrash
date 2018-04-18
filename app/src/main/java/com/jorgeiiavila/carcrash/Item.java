@@ -17,6 +17,7 @@ public abstract class Item {
     protected int width; // Width of the object
     protected int height; // Height of the object
     protected int speed; // speed of the item
+    protected int acceleration; // acceleration of the item
 
     /**
      * Item full constructor
@@ -61,6 +62,38 @@ public abstract class Item {
      */
     public void setX(int x) {
         this.x = x;
+    }
+
+    /**
+     * Return acceleration
+     * @return acceleration
+     */
+    public int getAcceleration() {
+        return acceleration;
+    }
+
+    /**
+     * Set acceleration
+     * @param acceleration acceleration of the item
+     */
+    public void setAcceleration(int acceleration) {
+        this.acceleration = acceleration;
+    }
+
+    /**
+     * Return speed
+     * @return speed of the item
+     */
+    public int getSpeed() {
+        return speed;
+    }
+
+    /**
+     * Set speed of the the item
+     * @param speed speed of the item
+     */
+    public void setSpeed(int speed) {
+        this.speed = speed;
     }
 
     /**

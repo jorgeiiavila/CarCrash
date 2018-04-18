@@ -29,7 +29,6 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
     int screenWidth; // Device screen width
     int screenHeight; // Device screen height
 
-
     /**
      * Contructor of GameView
      * @param context Context of the activity
@@ -97,14 +96,12 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
      * Update the objects values
      */
     public void update() {
-
         // Moves the player if asked
         if (move) {
-            if (x < screenWidth / 2) {
-                player.setX(player.getX() - 10);
-            } else {
-                player.setX(player.getX() + 10);
-            }
+            player.setMoved(true);
+            player.setScreenX(x);
+        } else {
+            player.setMoved(false);
         }
 
         // Checks player collision with enemies

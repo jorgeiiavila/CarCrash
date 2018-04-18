@@ -2,6 +2,7 @@ package com.jorgeiiavila.carcrash;
 
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 
 /**
@@ -17,17 +18,21 @@ public class Enemy extends Item {
 
     /**
      * Constructor of the enemy
-     * @param bitmap image of the character
+     * @param bitmapUp image of the character going up
+     * @param bitmapDown image of the character going down
      * @param speed speed of the enemy
      */
-    public Enemy(Bitmap bitmap, int speed) {
-        super(bitmap, speed);
+    public Enemy(Bitmap bitmapUp, Bitmap bitmapDown, int speed) {
+        super(bitmapUp, speed);
         this.initialSpeed = speed;
         this.height = bitmap.getHeight();
         this.width = bitmap.getWidth();
         screenWidth = Resources.getSystem().getDisplayMetrics().widthPixels;
         screenHeight = Resources.getSystem().getDisplayMetrics().heightPixels;
         restoreEnemy();
+        if (!goesUp) {
+            this.bitmap = bitmapDown;
+        }
     }
 
     /**

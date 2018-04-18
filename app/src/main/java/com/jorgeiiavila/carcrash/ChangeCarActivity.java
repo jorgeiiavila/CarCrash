@@ -31,9 +31,10 @@ public class ChangeCarActivity extends Activity {
         // Initiate Variables
         playerIdCars = new ArrayList<>();
 
-        // Creating posible options
+        // Creating possible options
         playerIdCars.add(R.drawable.player_red);
-        playerIdCars.add(R.drawable.police);
+        playerIdCars.add(R.drawable.player_black);
+        playerIdCars.add(R.drawable.player_orange);
 
         // Recycler View
         RecyclerView recyclerView = findViewById(R.id.changeCarRecyclerView);

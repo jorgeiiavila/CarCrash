@@ -29,13 +29,13 @@ public class SettingsActivity extends Activity {
 
         setContentView(R.layout.activity_settings);
 
+        // Instantiate SharedPreferences
+        sharedPreferences = getSharedPreferences(preferences.getFileName(), MODE_PRIVATE);
+
         // Relating declared buttons to xml buttons
         this.backBtn = findViewById(R.id.settingsBackBtn);
         this.musicCheckBox = findViewById(R.id.musicCheckBox);
         this.fxSoundsCheckBox = findViewById(R.id.fxSoundsCheckBox);
-
-        // Instantiate SharedPreferences
-        sharedPreferences = getSharedPreferences(preferences.getFileName(), MODE_PRIVATE);
 
         // Setting music and fx sounds to preferences values
         this.musicCheckBox.setChecked(sharedPreferences.getBoolean(preferences.getMusicKey(), true));
@@ -65,6 +65,7 @@ public class SettingsActivity extends Activity {
 
     }
 
+    // Updates de Shared Preferences Values
     private void saveSetting(String settingKey, Boolean newValue) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putBoolean(settingKey, newValue);

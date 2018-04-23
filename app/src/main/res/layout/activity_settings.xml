@@ -60,7 +60,7 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <CheckBox
-            android:id="@+id/checkBox2"
+            android:id="@+id/musicCheckBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -75,7 +75,7 @@
             tools:layout_editor_absoluteY="240dp" />
 
         <CheckBox
-            android:id="@+id/checkBox3"
+            android:id="@+id/fxSoundsCheckBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"

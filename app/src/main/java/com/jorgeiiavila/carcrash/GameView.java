@@ -7,6 +7,9 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.media.AudioAttributes;
+import android.media.AudioManager;
+import android.media.SoundPool;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -20,6 +23,9 @@ import java.util.ArrayList;
 class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
     private com.jorgeiiavila.carcrash.MainThread thread; // Thread
+
+    private SoundPool soundPool;
+
     private Player player; // Player object
     private ArrayList<Enemy> enemies; // Enemies arraylist
     private Background background; // Background object
@@ -35,17 +41,23 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
     /**
      * Contructor of GameView
+     *
      * @param context Context of the activity
      */
     public GameView(Context context) {
         super(context);
         getHolder().addCallback(this);
-        thread = new com.jorgeiiavila.carcrash.MainThread(getHolder(), this);
+        thread = new MainThread(getHolder(), this);
         setFocusable(true);
+
+        // Audio configuration for fx sound
+        soundPool = new SoundPool(10, AudioManager.STREAM_MUSIC, 0);
+
     }
 
     /**
      * Creates the surface
+     *
      * @param surfaceHolder Object containing the surface
      */
     @Override
@@ -59,7 +71,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
         Bitmap playerBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.player_red, options);
         player = new Player(playerBitmap, 6);
         enemies = new ArrayList<>();
-        for (int i = 0; i < 5; i ++) {
+        for (int i = 0; i < 5; i++) {
             enemies.add(new Enemy(BitmapFactory.decodeResource(getResources(), R.drawable.police_blue, options), BitmapFactory.decodeResource(getResources(), R.drawable.police_down_blue, options), 10));
         }
         background = new Background(BitmapFactory.decodeResource(getResources(), R.drawable.background, options), 0, 0, screenWidth, screenHeight, 10);
@@ -88,6 +100,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
     /**
      * Handles changes on surface
+     *
      * @param surfaceHolder
      * @param i
      * @param i1
@@ -100,6 +113,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
     /**
      * Handles when the surface is destroyed
+     *
      * @param surfaceHolder Object containing the surface
      */
     @Override
@@ -161,6 +175,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
     /**
      * Draw on screen
+     *
      * @param canvas Canvas object that allows the draw on screen
      */
     @Override
@@ -179,6 +194,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
     /**
      * Handles the touch events
+     *
      * @param event Gives information about the touches the user does
      * @return
      */

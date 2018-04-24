@@ -46,4 +46,6 @@ public class ChangeCarAdapter extends RecyclerView.Adapter<ChangeCarAdapter.View
     public int getItemCount() {
         return this.data.size();
     }
+
+
 }

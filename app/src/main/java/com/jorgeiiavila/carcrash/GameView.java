@@ -28,8 +28,10 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
     private int screenWidth; // Device screen width
     private int screenHeight; // Device screen height
     private int score; // Score of the game
-    private boolean gameEnded; // Controls if the game ended
     private boolean paused; // Controls if the game is paused
+    private double lives; // Lives of the player
+    private boolean gameOver; // Check if game is over
+    private boolean immune; // Give immunity to the player
 
     /**
      * Contructor of GameView
@@ -52,7 +54,6 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
         thread.start();
         screenWidth = Resources.getSystem().getDisplayMetrics().widthPixels;
         screenHeight = Resources.getSystem().getDisplayMetrics().heightPixels;
-
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inScaled = false;
         Bitmap playerBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.player_red, options);
@@ -62,6 +63,27 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
             enemies.add(new Enemy(BitmapFactory.decodeResource(getResources(), R.drawable.police_blue, options), BitmapFactory.decodeResource(getResources(), R.drawable.police_down_blue, options), 10));
         }
         background = new Background(BitmapFactory.decodeResource(getResources(), R.drawable.background, options), 0, 0, screenWidth, screenHeight, 10);
+        lives = 3;
+        gameOver = false;
+        score = 0;
+    }
+
+    /**
+     * Restart the game, restoring everything to the initial state
+     */
+    public void resetGame() {
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inScaled = false;
+        Bitmap playerBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.player_red, options);
+        player = new Player(playerBitmap, 6);
+        enemies = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            enemies.add(new Enemy(BitmapFactory.decodeResource(getResources(), R.drawable.police_blue, options), BitmapFactory.decodeResource(getResources(), R.drawable.police_down_blue, options), 10));
+        }
+        background = new Background(BitmapFactory.decodeResource(getResources(), R.drawable.background, options), 0, 0, screenWidth, screenHeight, 10);
+        lives = 3;
+        gameOver = false;
+        score = 0;
     }
 
     /**
@@ -98,27 +120,43 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
      * Update the objects values
      */
     public void update() {
-        // Moves the player if asked
-        if (move) {
-            player.setMoved(true);
-            player.setScreenX(x);
-        } else {
-            player.setMoved(false);
-        }
+        if (!gameOver) {
+            if (thread.getFrameCount() == 30) {
+                score++;
+            }
 
-        // Checks player collision with enemies
-        for (int i = 0; i < enemies.size(); i++) {
-            if (player.intersects(enemies.get(i).getBounds())) {
-                enemies.get(i).restoreEnemy();
+            // Moves the player if asked
+            if (move) {
+                player.setMoved(true);
+                player.setScreenX(x);
+            } else {
+                player.setMoved(false);
+            }
+
+            // Checks player collision with enemies
+            for (int i = 0; i < enemies.size(); i++) {
+                if (player.intersects(enemies.get(i).getBounds())) {
+                    enemies.get(i).restoreEnemy();
+                    lives--;
+                }
+            }
+
+            // Updates values
+            player.update();
+            for (int i = 0; i < enemies.size(); i++) {
+                enemies.get(i).update();
+            }
+            background.update();
+
+            // Check if game ended
+            if (lives == 0) {
+                gameOver = true;
+            }
+        } else {
+            if (move) {
+                resetGame();
             }
         }
-
-        // Updates values
-        player.update();
-        for (int i = 0; i < enemies.size(); i++) {
-            enemies.get(i).update();
-        }
-        background.update();
     }
 
     /**
@@ -135,8 +173,8 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
         player.draw(canvas);
         Paint paint = new Paint();
         paint.setColor(Color.WHITE);
-        paint.setTextSize(20);
-        canvas.drawText("SCORE: " + score, 100, 100, paint);
+        paint.setTextSize(40);
+        canvas.drawText("SCORE: " + score, 50, 100, paint);
     }
 
     /**

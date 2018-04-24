@@ -96,6 +96,10 @@ public abstract class Item {
         this.speed = speed;
     }
 
+    public int getWidth() {
+        return width;
+    }
+
     /**
      * Get the item character bounds
      * @return

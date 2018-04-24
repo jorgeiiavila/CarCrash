@@ -1,7 +1,5 @@
 package com.jorgeiiavila.carcrash;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.view.SurfaceHolder;
 
@@ -11,12 +9,13 @@ import android.view.SurfaceHolder;
 
 public class MainThread extends Thread {
 
+    public static Canvas canvas; // Variable where everything is drawn;
     private SurfaceHolder surfaceHolder; // Contains the canvas
     private GameView gameView; //
-    public static Canvas canvas; // Variable where everything is drawn;
     private boolean running; // Check if the thread is running
     private int targetFPS; // FPS wanted
     private double averageFPS; // Average FPS
+    private int frameCount; // Count the frames
 
     /**
      * Constructor of the class
@@ -31,6 +30,15 @@ public class MainThread extends Thread {
     }
 
     /**
+     * Get the current frame count
+     *
+     * @return frameCount
+     */
+    public int getFrameCount() {
+        return frameCount;
+    }
+
+    /**
      * Handles the running of the thread
      */
     @Override
@@ -39,7 +47,7 @@ public class MainThread extends Thread {
         long timeMillis;
         long waitTime;
         long totalTime = 0;
-        int frameCount = 0;
+        frameCount = 0;
         long targetTime = 1000 / targetFPS;
 
         while (running) {
@@ -68,7 +76,7 @@ public class MainThread extends Thread {
             waitTime = targetTime - timeMillis;
 
             try {
-                this.sleep(waitTime);
+                sleep(waitTime);
             } catch (Exception e) {}
 
             totalTime += System.nanoTime() - startTime;

@@ -2,6 +2,7 @@ package com.jorgeiiavila.carcrash;
 
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 
 /**
@@ -39,21 +40,13 @@ public class Enemy extends Item {
     }
 
     /**
-     * Gets a random boolean
-     *
-     * @return boolean variable
-     */
-    public static boolean getRandomBoolean() {
-        return Math.random() < 0.5;
-    }
-
-    /**
      * Sets the enemy to an starting position
      */
     public void restoreEnemy() {
-        goesUp = getRandomBoolean();
-        if (goesUp) {
+        this.goesUp = getRandomBoolean();
+        if (this.goesUp) {
             this.y = (int)(Math.random() * screenHeight) + screenHeight;
+            this.speed = this.initialSpeed;
         } else {
             this.y = -(int)(Math.random() * screenHeight) - height;
             this.speed = this.initialSpeed * 2;
@@ -92,5 +85,13 @@ public class Enemy extends Item {
         }
         animationUp.tick();
         animationDown.tick();
+    }
+
+    /**
+     * Gets a random boolean
+     * @return boolean variable
+     */
+    public static boolean getRandomBoolean() {
+        return Math.random() < 0.5;
     }
 }

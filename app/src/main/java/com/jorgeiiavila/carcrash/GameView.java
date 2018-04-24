@@ -7,6 +7,8 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Typeface;
+import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.view.MotionEvent;
@@ -65,19 +67,8 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
         thread.start();
         screenWidth = Resources.getSystem().getDisplayMetrics().widthPixels;
         screenHeight = Resources.getSystem().getDisplayMetrics().heightPixels;
-        BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inScaled = false;
-        Bitmap playerBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.player_red, options);
-        player = new Player(playerBitmap, 6);
-        enemies = new ArrayList<>();
-        for (int i = 0; i < 5; i++) {
-            enemies.add(new Enemy(BitmapFactory.decodeResource(getResources(), R.drawable.police_blue, options), BitmapFactory.decodeResource(getResources(), R.drawable.police_down_blue, options), 10));
-        }
+        resetGame();
         Assets.init(getResources());
-        background = new Background(BitmapFactory.decodeResource(getResources(), R.drawable.background, options), 0, 0, screenWidth, screenHeight, 10);
-        lives = 3;
-        gameOver = false;
-        score = 0;
     }
 
     /**
@@ -189,7 +180,9 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
         Paint paint = new Paint();
         paint.setColor(Color.WHITE);
         paint.setTextSize(40);
-        canvas.drawText("SCORE: " + score, 50, 100, paint);
+        paint.setTextAlign(Paint.Align.RIGHT);
+        paint.setTypeface(Typeface.create("Calibri", Typeface.BOLD));
+        canvas.drawText("SCORE " + score, screenWidth - 50, 80, paint);
     }
 
     /**

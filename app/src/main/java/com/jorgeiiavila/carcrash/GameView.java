@@ -8,7 +8,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Typeface;
-import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.view.MotionEvent;
@@ -50,7 +49,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
         getHolder().addCallback(this);
         thread = new MainThread(getHolder(), this);
         setFocusable(true);
-
+        Assets.init(getResources());
         // Audio configuration for fx sound
         soundPool = new SoundPool(10, AudioManager.STREAM_MUSIC, 0);
 
@@ -68,7 +67,6 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
         screenWidth = Resources.getSystem().getDisplayMetrics().widthPixels;
         screenHeight = Resources.getSystem().getDisplayMetrics().heightPixels;
         resetGame();
-        Assets.init(getResources());
     }
 
     /**

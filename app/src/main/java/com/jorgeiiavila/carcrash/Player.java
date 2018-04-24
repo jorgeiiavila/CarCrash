@@ -71,10 +71,10 @@ public class Player extends Item {
             // Check if player is onscreen
             if (screenX < screenWidth / 2) {
                 if (x + ((int)(0.47*width)) > 0) {
-                    if (direction > 0){
+                    if (direction > 0) {
                         resetSpeedAndDirection(-1);
                     }
-                    setSpeed(getSpeed()+1);
+                    setSpeed(getSpeed() + 1);
                     setX(getX() - getSpeed());
                 } else {
                     setX(-width / 2);
@@ -84,7 +84,7 @@ public class Player extends Item {
                     if (direction < 0) {
                         resetSpeedAndDirection(1);
                     }
-                    setSpeed(getSpeed()+1);
+                    setSpeed(getSpeed() + 1);
                     setX(getX() + getSpeed());
                 } else {
                     setX(screenWidth - width / 2);

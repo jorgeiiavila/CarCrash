@@ -2,7 +2,6 @@ package com.jorgeiiavila.carcrash;
 
 import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 
 /**
@@ -37,6 +36,15 @@ public class Enemy extends Item {
         }
         animationDown = new Animation(Assets.enemiesDown, 100);
         animationUp = new Animation(Assets.enemiesUp, 100);
+    }
+
+    /**
+     * Gets a random boolean
+     *
+     * @return boolean variable
+     */
+    public static boolean getRandomBoolean() {
+        return Math.random() < 0.5;
     }
 
     /**
@@ -85,13 +93,5 @@ public class Enemy extends Item {
         }
         animationUp.tick();
         animationDown.tick();
-    }
-
-    /**
-     * Gets a random boolean
-     * @return boolean variable
-     */
-    public static boolean getRandomBoolean() {
-        return Math.random() < 0.5;
     }
 }

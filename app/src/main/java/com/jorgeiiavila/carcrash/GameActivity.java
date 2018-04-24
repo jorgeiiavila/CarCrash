@@ -19,6 +19,7 @@ public class GameActivity extends Activity {
 
     /**
      * Runs Game View in this Activity
+     *
      * @param savedInstanceState
      */
     @Override
@@ -55,6 +56,10 @@ public class GameActivity extends Activity {
         if (music) {
             backgroundMusic.stop();
         }
+
+    }
+
+    public void run() {
 
     }
 }

@@ -1,6 +1,7 @@
 package com.jorgeiiavila.carcrash;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -13,6 +14,7 @@ import android.widget.CompoundButton;
 public class SettingsActivity extends Activity {
 
     private Button backBtn;
+    private Button creditsBtn;
     private CheckBox musicCheckBox;
     private CheckBox fxSoundsCheckBox;
 
@@ -34,6 +36,7 @@ public class SettingsActivity extends Activity {
 
         // Relating declared buttons to xml buttons
         this.backBtn = findViewById(R.id.settingsBackBtn);
+        this.creditsBtn = findViewById(R.id.settings_credits_btn);
         this.musicCheckBox = findViewById(R.id.musicCheckBox);
         this.fxSoundsCheckBox = findViewById(R.id.fxSoundsCheckBox);
 
@@ -46,6 +49,14 @@ public class SettingsActivity extends Activity {
             @Override
             public void onClick(View view) {
                 finish();
+            }
+        });
+        // Credits button listener
+        creditsBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(SettingsActivity.this, CreditsActivity.class);
+                SettingsActivity.this.startActivity(intent);
             }
         });
 

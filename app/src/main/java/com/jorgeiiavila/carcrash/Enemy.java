@@ -15,6 +15,8 @@ public class Enemy extends Item {
     int screenHeight; // height of the phone screen
     boolean goesUp; // Determines if the enemy goes up or down
     int initialSpeed; // Its the base speed of the
+    Bitmap bitmapDown;
+    Bitmap bitmapUp;
 
     /**
      * Constructor of the enemy
@@ -27,24 +29,27 @@ public class Enemy extends Item {
         this.initialSpeed = speed;
         this.height = bitmap.getHeight();
         this.width = bitmap.getWidth();
+        this.bitmapDown = bitmapDown;
+        this.bitmapUp = bitmapUp;
         screenWidth = Resources.getSystem().getDisplayMetrics().widthPixels;
         screenHeight = Resources.getSystem().getDisplayMetrics().heightPixels;
         restoreEnemy();
-        if (!goesUp) {
-            this.bitmap = bitmapDown;
-        }
+
     }
 
     /**
      * Sets the enemy to an starting position
      */
     public void restoreEnemy() {
-        goesUp = getRandomBoolean();
-        if (goesUp) {
+        this.goesUp = getRandomBoolean();
+        if (this.goesUp) {
             this.y = (int)(Math.random() * screenHeight) + screenHeight;
+            this.speed = initialSpeed;
+            setBitmap(bitmapUp);
         } else {
             this.y = -(int)(Math.random() * screenHeight) - height;
             this.speed = this.initialSpeed * 2;
+            setBitmap(bitmapDown);
         }
         this.x = (int) (Math.random() * (screenWidth)) - this.width/2;
     }

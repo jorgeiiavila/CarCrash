@@ -14,6 +14,8 @@ public class Player extends Item {
     private int screenHeight; // height of the phone screen
     private boolean moved; // Determines if there was a touch on the screen
     private int screenX;
+    private int direction;
+    private int initialSpeed;
 
     /**
      * Player constructor
@@ -23,13 +25,14 @@ public class Player extends Item {
      */
     public Player(Bitmap bitmap, int speed) {
         super(bitmap, speed);
+        this.initialSpeed = speed;
         this.height = bitmap.getHeight();
         this.width = bitmap.getWidth();
         screenWidth = Resources.getSystem().getDisplayMetrics().widthPixels;
         screenHeight = Resources.getSystem().getDisplayMetrics().heightPixels;
         this.y = screenHeight / 2 - this.height / 2;
         this.x = screenWidth / 2 - this.width / 2;
-        acceleration = 2;
+        this.direction = 1;
     }
 
     public boolean isMoved() {
@@ -68,17 +71,32 @@ public class Player extends Item {
             // Check if player is onscreen
             if (screenX < screenWidth / 2) {
                 if (x + ((int)(0.47*width)) > 0) {
-                    setX(getX() - getAcceleration() * getSpeed());
+                    if (direction > 0){
+                        resetSpeedAndDirection(-1);
+                    }
+                    setSpeed(getSpeed()+1);
+                    setX(getX() - getSpeed());
                 } else {
                     setX(-width / 2);
                 }
             } else {
                 if (x + width - ((int)(0.47*width)) < screenWidth) {
-                    setX(getX() + getAcceleration() * getSpeed());
+                    if (direction < 0) {
+                        resetSpeedAndDirection(1);
+                    }
+                    setSpeed(getSpeed()+1);
+                    setX(getX() + getSpeed());
                 } else {
                     setX(screenWidth - width / 2);
                 }
             }
+        } else {
+            resetSpeedAndDirection(1);
         }
+    }
+
+    private void resetSpeedAndDirection(int direction) {
+        this.direction = direction;
+        setSpeed(initialSpeed);
     }
 }

@@ -2,7 +2,6 @@ package com.jorgeiiavila.carcrash;
 
 import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 
 /**
@@ -15,6 +14,8 @@ public class Enemy extends Item {
     int screenHeight; // height of the phone screen
     boolean goesUp; // Determines if the enemy goes up or down
     int initialSpeed; // Its the base speed of the
+    Animation animationDown; // Animation of the enemy down
+    Animation animationUp; // Animation of the enemy up
 
     /**
      * Constructor of the enemy
@@ -33,6 +34,17 @@ public class Enemy extends Item {
         if (!goesUp) {
             this.bitmap = bitmapDown;
         }
+        animationDown = new Animation(Assets.enemiesDown, 100);
+        animationUp = new Animation(Assets.enemiesUp, 100);
+    }
+
+    /**
+     * Gets a random boolean
+     *
+     * @return boolean variable
+     */
+    public static boolean getRandomBoolean() {
+        return Math.random() < 0.5;
     }
 
     /**
@@ -55,7 +67,11 @@ public class Enemy extends Item {
      */
     @Override
     public void draw(Canvas canvas) {
-        canvas.drawBitmap(bitmap, x, y, null);
+        if (goesUp) {
+            canvas.drawBitmap(animationUp.getCurrentFrame(), x, y, null);
+        } else {
+            canvas.drawBitmap(animationDown.getCurrentFrame(), x, y, null);
+        }
     }
 
     /**
@@ -74,13 +90,7 @@ public class Enemy extends Item {
                 restoreEnemy();
             }
         }
-    }
-
-    /**
-     * Gets a random boolean
-     * @return boolean variable
-     */
-    public static boolean getRandomBoolean() {
-        return Math.random() < 0.5;
+        animationUp.tick();
+        animationDown.tick();
     }
 }

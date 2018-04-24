@@ -1,17 +1,15 @@
 package com.jorgeiiavila.carcrash;
 
-import android.content.SharedPreferences;
-
 public class Preferences {
 
-    private String fileName = "carCrashPreferences";
+    private static final String fileName = "carCrashPreferences";
 
     // Settings
-    private String musicKey = "music";
-    private String fxSoundsKey = "fxSounds";
+    private static final String musicKey = "music";
+    private static final String fxSoundsKey = "fxSounds";
 
     // Car Image
-    private String carImageKey = "carImage";
+    private static final String carImageKey = "carImage";
 
     // Getters
     public String getFileName() {

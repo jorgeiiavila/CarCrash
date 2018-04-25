@@ -1,6 +1,7 @@
 package com.jorgeiiavila.carcrash;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -22,15 +23,19 @@ import java.util.ArrayList;
 
 class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
+    Bitmap pauseBitmap; // Pause image
+    SharedPreferences sharedPreferences; // to save the high score
+    // Buttons positions
+    double xPosPause;
+    double yPosPause;
     private com.jorgeiiavila.carcrash.MainThread thread; // Thread
-
     private SoundPool soundPool;
-
     private Player player; // Player object
     private ArrayList<Enemy> enemies; // Enemies arraylist
     private Background background; // Background object
     private boolean move; // Indicates if the player must move
     private int x; // Position in x where the user clicked
+    private int y; // Position in y where the user clicked
     private int screenWidth; // Device screen width
     private int screenHeight; // Device screen height
     private int score; // Score of the game
@@ -52,7 +57,8 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
         Assets.init(getResources());
         // Audio configuration for fx sound
         soundPool = new SoundPool(10, AudioManager.STREAM_MUSIC, 0);
-
+        Preferences preferences = new Preferences();
+        sharedPreferences = context.getSharedPreferences(preferences.getFileName(), Context.MODE_PRIVATE);
     }
 
     /**
@@ -85,6 +91,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
         lives = 3;
         gameOver = false;
         score = 0;
+        paused = false;
     }
 
     /**
@@ -124,42 +131,111 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
      */
     public void update() {
         if (!gameOver) {
-            if (thread.getFrameCount() == 30) {
-                score++;
-            }
+            if (!paused) {
+                if (thread.getFrameCount() == 30) {
+                    score++;
+                }
 
-            // Moves the player if asked
-            if (move) {
-                player.setMoved(true);
-                player.setScreenX(x);
-            } else {
-                player.setMoved(false);
-            }
+                // Moves the player if asked
+                if (move) {
+                    player.setMoved(true);
+                    player.setScreenX(x);
+                } else {
+                    player.setMoved(false);
+                }
 
-            // Checks player collision with enemies
-            for (int i = 0; i < enemies.size(); i++) {
-                if (player.intersects(enemies.get(i).getBounds())) {
-                    enemies.get(i).restoreEnemy();
-                    lives--;
+                // Checks player collision with enemies
+                for (int i = 0; i < enemies.size(); i++) {
+                    if (player.intersects(enemies.get(i).getBounds())) {
+                        enemies.get(i).restoreEnemy();
+                        lives--;
+                    }
+                }
+
+                // Updates values
+                player.update();
+                for (int i = 0; i < enemies.size(); i++) {
+                    enemies.get(i).update();
+                }
+                background.update();
+
+                // Check if game ended
+                if (lives == 0) {
+                    gameOver = true;
                 }
             }
-
-            // Updates values
-            player.update();
-            for (int i = 0; i < enemies.size(); i++) {
-                enemies.get(i).update();
-            }
-            background.update();
-
-            // Check if game ended
-            if (lives == 0) {
-                gameOver = true;
-            }
         } else {
+            Preferences preferences = new Preferences();
+            int highScore = sharedPreferences.getInt(preferences.highScore, 0);
+            if (score > highScore) {
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putInt(preferences.highScore, score);
+                editor.commit();
+            }
             if (move) {
                 resetGame();
             }
         }
+    }
+
+    /**
+     * Draw pause button
+     *
+     * @param canvas
+     */
+    public void drawPauseButton(Canvas canvas) {
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inScaled = false;
+        pauseBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.back_cta, options);
+        xPosPause = screenWidth * (24.0 * 100.0 / 412.0) / 100.0;
+        yPosPause = screenHeight * (24.0 * 100.0 / 732.0) / 100.0;
+        canvas.drawBitmap(pauseBitmap, (int) xPosPause, (int) yPosPause, null);
+    }
+
+    /**
+     * Draw the pause menu
+     *
+     * @param canvas
+     */
+    public void drawPauseMenu(Canvas canvas) {
+        drawPauseButton(canvas);
+        Paint paint = new Paint();
+        paint.setColor(Color.WHITE);
+        paint.setTextSize(80);
+        paint.setTextAlign(Paint.Align.CENTER);
+        paint.setTypeface(Typeface.create("Calibri", Typeface.BOLD));
+        canvas.drawText("PAUSE ", screenWidth / 2, 500, paint);
+        canvas.drawText("SCORE: " + score, screenWidth / 2, 600, paint);
+    }
+
+    /**
+     * Draw score of the player
+     *
+     * @param canvas
+     */
+    public void drawScore(Canvas canvas) {
+        Paint paint = new Paint();
+        paint.setColor(Color.WHITE);
+        paint.setTextSize(60);
+        paint.setTextAlign(Paint.Align.RIGHT);
+        paint.setTypeface(Typeface.create("Calibri", Typeface.BOLD));
+        double posY = screenHeight * (28.0 * 100.0 / 732.0) / 100.0;
+        canvas.drawText("SCORE " + score, screenWidth - 50, (int) posY + 60, paint);
+    }
+
+    /**
+     * Draw game over screen
+     *
+     * @param canvas
+     */
+    public void drawGameOver(Canvas canvas) {
+        Paint paint = new Paint();
+        paint.setColor(Color.WHITE);
+        paint.setTextSize(80);
+        paint.setTextAlign(Paint.Align.CENTER);
+        paint.setTypeface(Typeface.create("Calibri", Typeface.BOLD));
+        canvas.drawText("GAME OVER ", screenWidth / 2, 500, paint);
+        canvas.drawText("SCORE: " + score, screenWidth / 2, 600, paint);
     }
 
     /**
@@ -170,17 +246,23 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
     @Override
     public void draw(Canvas canvas) {
         super.draw(canvas);
+
+        // Game elements draw
         background.draw(canvas);
         for (int i = 0; i < enemies.size(); i++) {
             enemies.get(i).draw(canvas);
         }
         player.draw(canvas);
-        Paint paint = new Paint();
-        paint.setColor(Color.WHITE);
-        paint.setTextSize(40);
-        paint.setTextAlign(Paint.Align.RIGHT);
-        paint.setTypeface(Typeface.create("Calibri", Typeface.BOLD));
-        canvas.drawText("SCORE " + score, screenWidth - 50, 80, paint);
+
+        // check if the game is over, paused or on going, and draw things accordingly
+        if (gameOver) {
+            drawGameOver(canvas);
+        } else if (paused) {
+            drawPauseMenu(canvas);
+        } else {
+            drawScore(canvas);
+            drawPauseButton(canvas);
+        }
     }
 
     /**
@@ -192,10 +274,17 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         x = (int) event.getX();
+        y = (int) event.getY();
 
         // Check if the user clicked the screen or released it
+
         if (event.getAction() == MotionEvent.ACTION_DOWN) {
-            move = true;
+            if (x >= xPosPause && xPosPause <= xPosPause + pauseBitmap.getWidth() &&
+                    y >= yPosPause && y <= yPosPause + pauseBitmap.getHeight()) {
+                paused = !paused;
+            } else {
+                move = true;
+            }
         } else if (event.getAction() == MotionEvent.ACTION_UP) {
             move = false;
         }

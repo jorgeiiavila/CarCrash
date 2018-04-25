@@ -2,12 +2,12 @@ package com.jorgeiiavila.carcrash;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
-import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.TextView;
 
 public class MainActivity extends Activity {
 
@@ -65,4 +65,13 @@ public class MainActivity extends Activity {
         });
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // High Score Text View
+        TextView highScore = findViewById(R.id.mainScoreTextView);
+        Preferences preferences = new Preferences();
+        SharedPreferences sharedPreferences = getSharedPreferences(preferences.getFileName(), MODE_PRIVATE);
+        highScore.setText(sharedPreferences.getInt(preferences.highScore, 0) + "");
+    }
 }

@@ -2,15 +2,11 @@ package com.jorgeiiavila.carcrash;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.Adapter;
 import android.widget.Button;
 
 import java.util.ArrayList;
@@ -61,9 +57,6 @@ public class ChangeCarActivity extends Activity {
                 finish();
             }
         });
-
-
-
     }
 
     // Updates de Shared Preferences Values

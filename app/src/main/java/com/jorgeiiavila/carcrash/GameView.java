@@ -29,7 +29,9 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
     double xPosPause;
     double yPosPause;
     private com.jorgeiiavila.carcrash.MainThread thread; // Thread
+
     private SoundPool soundPool;
+
     private Player player; // Player object
     private ArrayList<Enemy> enemies; // Enemies arraylist
     private Background background; // Background object
@@ -42,7 +44,15 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
     private boolean paused; // Controls if the game is paused
     private double lives; // Lives of the player
     private boolean gameOver; // Check if game is over
-    private boolean immune; // Give immunity to the player
+
+    // Power Ups variables
+    private Powerup powerup;
+    private int timeToDisplayPowerUp;
+    private int limitToDisplayPowerUp = 1200;
+    private boolean powerupPointsX2;
+    private boolean powerupImmunity;
+    private int powerupActiveTime;
+    private int powerupLimitTime = 800;
 
     /**
      * Contructor of GameView
@@ -87,6 +97,11 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
         for (int i = 0; i < 5; i++) {
             enemies.add(new Enemy(BitmapFactory.decodeResource(getResources(), R.drawable.police_blue, options), BitmapFactory.decodeResource(getResources(), R.drawable.police_down_blue, options), 10));
         }
+        powerup = new Powerup(BitmapFactory.decodeResource(getResources(), R.drawable.powerup_extra_life, options), 10, getResources());
+        this.powerupPointsX2 = false;
+        this.powerupImmunity = false;
+        this.timeToDisplayPowerUp = 0;
+        this.powerupActiveTime = 0;
         background = new Background(BitmapFactory.decodeResource(getResources(), R.drawable.background, options), 0, 0, screenWidth, screenHeight, 10);
         lives = 3;
         gameOver = false;
@@ -133,7 +148,27 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
         if (!gameOver) {
             if (!paused) {
                 if (thread.getFrameCount() == 30) {
-                    score++;
+                    if (powerupPointsX2) {
+                        score+=2;
+                    } else {
+                        score++;
+                    }
+                }
+
+                // Power Up
+                timeToDisplayPowerUp++;
+                if (timeToDisplayPowerUp >= limitToDisplayPowerUp) {
+                    timeToDisplayPowerUp = 0;
+                    powerup.generatePowerUp();
+                }
+
+                if (powerupPointsX2 || powerupImmunity) {
+                    powerupActiveTime++;
+                    if (powerupActiveTime >= powerupLimitTime) {
+                        powerupActiveTime = 0;
+                        powerupPointsX2 = false;
+                        powerupImmunity = false;
+                    }
                 }
 
                 // Moves the player if asked
@@ -146,10 +181,29 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
                 // Checks player collision with enemies
                 for (int i = 0; i < enemies.size(); i++) {
-                    if (player.intersects(enemies.get(i).getBounds())) {
+                    if (player.intersects(enemies.get(i).getBounds()) && !this.powerupImmunity) {
                         enemies.get(i).restoreEnemy();
                         lives--;
                     }
+                }
+
+                if (player.intersects(powerup.getBounds())) {
+                    switch (powerup.getPowerUpType()) {
+                        case 1:
+                            if (lives < 3) {
+                                lives++;
+                            }
+                            break;
+                        case 2:
+                            this.powerupPointsX2 = true;
+                            break;
+                        case 3:
+                            this.powerupImmunity = true;
+                            break;
+                        default:
+                            break;
+                    }
+                    powerup.setActive(false);
                 }
 
                 // Updates values
@@ -157,6 +211,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
                 for (int i = 0; i < enemies.size(); i++) {
                     enemies.get(i).update();
                 }
+                powerup.update();
                 background.update();
 
                 // Check if game ended
@@ -249,6 +304,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
         // Game elements draw
         background.draw(canvas);
+        powerup.draw(canvas);
         for (int i = 0; i < enemies.size(); i++) {
             enemies.get(i).draw(canvas);
         }
@@ -277,7 +333,6 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
         y = (int) event.getY();
 
         // Check if the user clicked the screen or released it
-
         if (event.getAction() == MotionEvent.ACTION_DOWN) {
             if (x >= xPosPause && xPosPause <= xPosPause + pauseBitmap.getWidth() &&
                     y >= yPosPause && y <= yPosPause + pauseBitmap.getHeight()) {

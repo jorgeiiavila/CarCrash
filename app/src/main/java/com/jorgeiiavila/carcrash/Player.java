@@ -1,8 +1,9 @@
 package com.jorgeiiavila.carcrash;
 
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+
+import static java.lang.Math.round;
 
 /**
  * Created by jorge on 4/9/2018.
@@ -10,8 +11,6 @@ import android.graphics.Canvas;
 
 public class Player extends Item {
 
-    private int screenWidth; // width of the phone screen
-    private int screenHeight; // height of the phone screen
     private boolean moved; // Determines if there was a touch on the screen
     private int screenX;
     private int direction;
@@ -25,14 +24,12 @@ public class Player extends Item {
      */
     public Player(Bitmap bitmap, int speed) {
         super(bitmap, speed);
-        this.initialSpeed = speed;
         this.height = bitmap.getHeight();
         this.width = bitmap.getWidth();
-        screenWidth = Resources.getSystem().getDisplayMetrics().widthPixels;
-        screenHeight = Resources.getSystem().getDisplayMetrics().heightPixels;
         this.y = screenHeight / 2 - this.height / 2;
         this.x = screenWidth / 2 - this.width / 2;
         this.direction = 1;
+        initialSpeed = speed;
     }
 
     public boolean isMoved() {
@@ -74,7 +71,7 @@ public class Player extends Item {
                     if (direction > 0) {
                         resetSpeedAndDirection(-1);
                     }
-                    setSpeed(getSpeed() + 1);
+                    setSpeed(getSpeed() + (int) round(screenWidth * (1.0 / 720.0)));
                     setX(getX() - getSpeed());
                 } else {
                     setX(-width / 2);
@@ -84,7 +81,7 @@ public class Player extends Item {
                     if (direction < 0) {
                         resetSpeedAndDirection(1);
                     }
-                    setSpeed(getSpeed() + 1);
+                    setSpeed(getSpeed() + (int) round(screenWidth * (1.0 / 720.0)));
                     setX(getX() + getSpeed());
                 } else {
                     setX(screenWidth - width / 2);

@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 public class MainActivity extends Activity {
@@ -73,5 +74,22 @@ public class MainActivity extends Activity {
         Preferences preferences = new Preferences();
         SharedPreferences sharedPreferences = getSharedPreferences(preferences.getFileName(), MODE_PRIVATE);
         highScore.setText(sharedPreferences.getInt(preferences.highScore, 0) + "");
+
+        // Car image
+        ImageView carImage = findViewById(R.id.mainCarImg);
+        int currentCar = sharedPreferences.getInt(preferences.getCarImageKey(), 0);
+        switch (currentCar) {
+            case 0:
+                carImage.setImageDrawable(getDrawable(R.drawable.player_red));
+                break;
+            case 1:
+                carImage.setImageDrawable(getDrawable(R.drawable.player_black));
+                break;
+            case 2:
+                carImage.setImageDrawable(getDrawable(R.drawable.player_orange));
+                break;
+            default:
+                break;
+        }
     }
 }

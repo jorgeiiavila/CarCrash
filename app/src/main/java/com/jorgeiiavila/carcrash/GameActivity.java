@@ -3,8 +3,6 @@ package com.jorgeiiavila.carcrash;
 import android.app.Activity;
 import android.content.SharedPreferences;
 import android.media.MediaPlayer;
-import android.provider.MediaStore;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Window;
 import android.view.WindowManager;
@@ -45,7 +43,7 @@ public class GameActivity extends Activity {
         }
 
         // Runs game
-        setContentView(new GameView(this));
+        setContentView(new GameView(this, this));
     }
 
     @Override
@@ -59,7 +57,7 @@ public class GameActivity extends Activity {
 
     }
 
-    public void run() {
-
+    public Activity getActivity() {
+        return this;
     }
 }

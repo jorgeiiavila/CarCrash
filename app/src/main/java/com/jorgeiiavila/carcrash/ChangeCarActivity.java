@@ -8,10 +8,11 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
-public class ChangeCarActivity extends Activity {
+public class ChangeCarActivity extends Activity implements ChangeCarAdapter.AdapterCallback {
 
     private Button backBtn;
     private ArrayList<Integer> playerIdCars;
@@ -45,7 +46,7 @@ public class ChangeCarActivity extends Activity {
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(layoutManager);
-        recyclerView.setAdapter(new ChangeCarAdapter(playerIdCars));
+        recyclerView.setAdapter(new ChangeCarAdapter(playerIdCars, ChangeCarActivity.this));
 
         // Relating declared buttons to xml buttons
         this.backBtn = findViewById(R.id.changeCarBackBtn);
@@ -66,4 +67,11 @@ public class ChangeCarActivity extends Activity {
         editor.apply();
     }
 
+    @Override
+    public void onItemClicked(int position) {
+        Preferences preferences = new Preferences();
+        saveSetting(preferences.getCarImageKey(), position);
+        Toast.makeText(this, "New Car Selected!", Toast.LENGTH_SHORT).show();
+        finish();
+    }
 }

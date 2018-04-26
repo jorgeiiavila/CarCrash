@@ -1,8 +1,11 @@
 package com.jorgeiiavila.carcrash;
 
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Rect;
+
+import static java.lang.Math.round;
 
 /**
  * Created by jorge on 4/9/2018.
@@ -17,6 +20,8 @@ public abstract class Item {
     protected int width; // Width of the object
     protected int height; // Height of the object
     protected int speed; // speed of the item
+    protected int screenWidth;
+    protected int screenHeight;
 
     /**
      * Item full constructor
@@ -29,6 +34,8 @@ public abstract class Item {
      */
     public Item(Bitmap bitmap, int x, int y, int width, int height, int speed) {
         this.bitmap = bitmap;
+        screenWidth = Resources.getSystem().getDisplayMetrics().widthPixels;
+        screenHeight = Resources.getSystem().getDisplayMetrics().heightPixels;
         this.x = x;
         this.y = y;
         this.width = width;
@@ -40,11 +47,12 @@ public abstract class Item {
     /**
      * Item partial constructor
      * @param bitmap image of the character
-     * @param speed speed of the character
      */
     public Item(Bitmap bitmap, int speed) {
         this.bitmap = bitmap;
-        this.speed = speed;
+        screenWidth = Resources.getSystem().getDisplayMetrics().widthPixels;
+        screenHeight = Resources.getSystem().getDisplayMetrics().heightPixels;
+        this.speed = (int) round(screenWidth * (speed / 720.0));
     }
 
     /**

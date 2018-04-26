@@ -14,9 +14,9 @@ public class Powerup extends Item {
     int screenHeight;   // height of the phone screen
     boolean isActive;   //
     int powerUpType;    // Power up type
-                        // 1: Extra Life
-                        // 2: Points x2
-                        // 3: Immunity
+    // 1: Extra Life
+    // 2: Points x2
+    // 3: Immunity
     Bitmap extraLifeBitmap;
     Bitmap pointsX2Bitmap;
     Bitmap immunityBitmap;
@@ -28,8 +28,8 @@ public class Powerup extends Item {
         screenWidth = Resources.getSystem().getDisplayMetrics().widthPixels;
         screenHeight = Resources.getSystem().getDisplayMetrics().heightPixels;
         this.isActive = false;
-        this.x = (int) (Math.random() * (screenWidth)) - this.width/2;
-        this.y = -(int)(Math.random() * screenHeight) - height;
+        this.x = (int) (Math.random() * (screenWidth)) - this.width / 2;
+        this.y = -(int) (Math.random() * screenHeight) - height;
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inScaled = false;
         this.extraLifeBitmap = BitmapFactory.decodeResource(resources, R.drawable.powerup_extra_life, options);
@@ -37,12 +37,12 @@ public class Powerup extends Item {
         this.immunityBitmap = BitmapFactory.decodeResource(resources, R.drawable.powerup_inmune, options);
     }
 
-    public void setActive(boolean active) {
-        isActive = active;
-    }
-
     public boolean isActive() {
         return isActive;
+    }
+
+    public void setActive(boolean active) {
+        isActive = active;
     }
 
     public int getPowerUpType() {
@@ -50,8 +50,8 @@ public class Powerup extends Item {
     }
 
     public void generatePowerUp() {
-        this.x = (int) (Math.random() * (screenWidth)) - this.width/2;
-        this.y = -(int)(Math.random() * screenHeight) - height;
+        this.x = (int) (Math.random() * (screenWidth)) - this.width / 2;
+        this.y = -(int) (Math.random() * screenHeight) - height;
         Random random = new Random();
         this.powerUpType = random.nextInt((3 - 1) + 1) + 1;
         switch (this.powerUpType) {
@@ -72,7 +72,7 @@ public class Powerup extends Item {
 
     @Override
     public Rect getBounds() {
-        return new Rect(x, y,x+width,y+height);
+        return new Rect(x, y, x + width, y + height);
     }
 
     @Override

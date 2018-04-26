@@ -14,20 +14,12 @@ import java.util.ArrayList;
 
 public class ChangeCarAdapter extends RecyclerView.Adapter<ChangeCarAdapter.ViewHolder> {
 
+    AdapterCallback callback;
     private ArrayList<Integer> data;
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
-
-        public ImageView carOption;
-
-        public ViewHolder(View v) {
-            super(v);
-            carOption = v.findViewById(R.id.change_car_item_image);
-        }
-    }
-
-    public ChangeCarAdapter(ArrayList<Integer> data) {
+    public ChangeCarAdapter(ArrayList<Integer> data, AdapterCallback callback) {
         this.data = data;
+        this.callback = callback;
     }
 
     @Override
@@ -38,13 +30,35 @@ public class ChangeCarAdapter extends RecyclerView.Adapter<ChangeCarAdapter.View
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+    public void onBindViewHolder(ViewHolder holder, final int position) {
         holder.carOption.setImageResource(data.get(position));
+        holder.carOption.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (callback != null) {
+                    callback.onItemClicked(position);
+                }
+            }
+        });
     }
 
     @Override
     public int getItemCount() {
         return this.data.size();
+    }
+
+    public interface AdapterCallback {
+        void onItemClicked(int position);
+    }
+
+    public static class ViewHolder extends RecyclerView.ViewHolder {
+
+        public ImageView carOption;
+
+        public ViewHolder(View v) {
+            super(v);
+            carOption = v.findViewById(R.id.change_car_item_image);
+        }
     }
 
 

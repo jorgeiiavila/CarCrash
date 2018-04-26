@@ -1,5 +1,6 @@
 package com.jorgeiiavila.carcrash;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
@@ -9,8 +10,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Typeface;
-import android.media.AudioManager;
-import android.media.SoundPool;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -24,14 +23,14 @@ import java.util.ArrayList;
 class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
     Bitmap pauseBitmap; // Pause image
+    Bitmap button; // Pause/GameOver menu buttons
     SharedPreferences sharedPreferences; // to save the high score
     // Buttons positions
     double xPosPause;
     double yPosPause;
+    // Game Activity
+    Activity activity;
     private com.jorgeiiavila.carcrash.MainThread thread; // Thread
-
-    private SoundPool soundPool;
-
     private Player player; // Player object
     private ArrayList<Enemy> enemies; // Enemies arraylist
     private Background background; // Background object
@@ -42,9 +41,8 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
     private int screenHeight; // Device screen height
     private int score; // Score of the game
     private boolean paused; // Controls if the game is paused
-    private double lives; // Lives of the player
+    private int lives; // Lives of the player
     private boolean gameOver; // Check if game is over
-
     // Power Ups variables
     private Powerup powerup;
     private int timeToDisplayPowerUp;
@@ -53,22 +51,26 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
     private boolean powerupImmunity;
     private int powerupActiveTime;
     private int powerupLimitTime = 800;
+    // Buttons positions
+    private int exitX;
+    private int exitY;
+    private int retryX;
+    private int retryY;
 
     /**
      * Contructor of GameView
      *
      * @param context Context of the activity
      */
-    public GameView(Context context) {
+    public GameView(Context context, Activity activity) {
         super(context);
         getHolder().addCallback(this);
         thread = new MainThread(getHolder(), this);
         setFocusable(true);
         Assets.init(getResources());
-        // Audio configuration for fx sound
-        soundPool = new SoundPool(10, AudioManager.STREAM_MUSIC, 0);
         Preferences preferences = new Preferences();
         sharedPreferences = context.getSharedPreferences(preferences.getFileName(), Context.MODE_PRIVATE);
+        this.activity = activity;
     }
 
     /**
@@ -86,13 +88,37 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
     }
 
     /**
+     * Load car according to user settings
+     */
+    public void loadCar() {
+        Preferences preferences = new Preferences();
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inScaled = false;
+        Bitmap playerBitmap = null;
+        int car = sharedPreferences.getInt(preferences.getCarImageKey(), 0);
+        switch (car) {
+            case 0:
+                playerBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.player_red, options);
+                break;
+            case 1:
+                playerBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.player_black, options);
+                break;
+            case 2:
+                playerBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.player_orange, options);
+                break;
+            default:
+                break;
+        }
+        player = new Player(playerBitmap, 6);
+    }
+
+    /**
      * Restart the game, restoring everything to the initial state
      */
     public void resetGame() {
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inScaled = false;
-        Bitmap playerBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.player_red, options);
-        player = new Player(playerBitmap, 6);
+        loadCar();
         enemies = new ArrayList<>();
         for (int i = 0; i < 5; i++) {
             enemies.add(new Enemy(BitmapFactory.decodeResource(getResources(), R.drawable.police_blue, options), BitmapFactory.decodeResource(getResources(), R.drawable.police_down_blue, options), 10));
@@ -107,6 +133,8 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
         gameOver = false;
         score = 0;
         paused = false;
+        button = BitmapFactory.decodeResource(getResources(), R.drawable.exit_cta, options);
+        pauseBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.resume_cta, options);
     }
 
     /**
@@ -149,7 +177,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
             if (!paused) {
                 if (thread.getFrameCount() == 30) {
                     if (powerupPointsX2) {
-                        score+=2;
+                        score += 2;
                     } else {
                         score++;
                     }
@@ -227,9 +255,27 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
                 editor.putInt(preferences.highScore, score);
                 editor.commit();
             }
-            if (move) {
-                resetGame();
-            }
+        }
+    }
+
+    /**
+     * Draw button on the center of the screen
+     *
+     * @param canvas
+     */
+    public void drawButtonCenter(Canvas canvas, int x, int y, String type) {
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inScaled = false;
+        if (type == "EXIT") {
+            button = BitmapFactory.decodeResource(getResources(), R.drawable.exit_cta, options);
+            exitX = x - button.getWidth() / 2;
+            exitY = y;
+            canvas.drawBitmap(button, exitX, exitY, null);
+        } else {
+            button = BitmapFactory.decodeResource(getResources(), R.drawable.retry_cta, options);
+            retryX = x - button.getWidth() / 2;
+            retryY = y;
+            canvas.drawBitmap(button, retryX, retryY, null);
         }
     }
 
@@ -241,41 +287,84 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
     public void drawPauseButton(Canvas canvas) {
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inScaled = false;
-        pauseBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.back_cta, options);
+        if (paused) {
+            pauseBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.resume_cta, options);
+        } else {
+            pauseBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.pause_cta, options);
+        }
         xPosPause = screenWidth * (24.0 * 100.0 / 412.0) / 100.0;
         yPosPause = screenHeight * (24.0 * 100.0 / 732.0) / 100.0;
         canvas.drawBitmap(pauseBitmap, (int) xPosPause, (int) yPosPause, null);
     }
 
     /**
-     * Draw the pause menu
+     * Draw lives onscreen
      *
      * @param canvas
      */
+    public void drawLives(Canvas canvas) {
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inScaled = false;
+        Bitmap livesBm = null;
+        switch (lives) {
+            case 3:
+                livesBm = BitmapFactory.decodeResource(getResources(), R.drawable.lives_3, options);
+                break;
+            case 2:
+                livesBm = BitmapFactory.decodeResource(getResources(), R.drawable.lives_2, options);
+                break;
+            case 1:
+                livesBm = BitmapFactory.decodeResource(getResources(), R.drawable.lives_1, options);
+                break;
+            case 0:
+                livesBm = BitmapFactory.decodeResource(getResources(), R.drawable.lives_0, options);
+            default:
+                break;
+        }
+        double posX = screenWidth - livesBm.getWidth() - screenWidth * (24.0 / 412.0);
+        double posY = screenHeight * (28.0 * 100.0 / 732.0) / 100.0;
+        canvas.drawBitmap(livesBm, (int) posX, (int) posY + 50 + 10, null);
+    }
+
+    /**
+     * Draw the pause menu
+     * @param canvas
+     */
     public void drawPauseMenu(Canvas canvas) {
+        // Draw pause background
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inScaled = false;
+        Bitmap pauseBg = BitmapFactory.decodeResource(getResources(), R.drawable.background_shade, options);
+        canvas.drawBitmap(pauseBg, 0, 0, null);
+        drawScore(canvas); // Draw Score
+
+        // Draw resume button
         drawPauseButton(canvas);
+
         Paint paint = new Paint();
         paint.setColor(Color.WHITE);
         paint.setTextSize(80);
         paint.setTextAlign(Paint.Align.CENTER);
         paint.setTypeface(Typeface.create("Calibri", Typeface.BOLD));
-        canvas.drawText("PAUSE ", screenWidth / 2, 500, paint);
-        canvas.drawText("SCORE: " + score, screenWidth / 2, 600, paint);
+        canvas.drawText("PAUSED GAME", screenWidth / 2, screenHeight / 2, paint);
+
+        // Draw exit button
+        drawButtonCenter(canvas, screenWidth / 2, screenHeight / 2 + (screenHeight * 90 / 720), "EXIT");
+
     }
 
     /**
      * Draw score of the player
-     *
      * @param canvas
      */
     public void drawScore(Canvas canvas) {
         Paint paint = new Paint();
         paint.setColor(Color.WHITE);
-        paint.setTextSize(60);
+        paint.setTextSize(50);
         paint.setTextAlign(Paint.Align.RIGHT);
         paint.setTypeface(Typeface.create("Calibri", Typeface.BOLD));
         double posY = screenHeight * (28.0 * 100.0 / 732.0) / 100.0;
-        canvas.drawText("SCORE " + score, screenWidth - 50, (int) posY + 60, paint);
+        canvas.drawText("SCORE " + score, screenWidth - 50, (int) posY + 50, paint);
     }
 
     /**
@@ -284,13 +373,21 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
      * @param canvas
      */
     public void drawGameOver(Canvas canvas) {
+        // Draw Game Over background
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inScaled = false;
+        Bitmap gameOverBg = BitmapFactory.decodeResource(getResources(), R.drawable.background_shade, options);
+        canvas.drawBitmap(gameOverBg, 0, 0, null);
+        drawScore(canvas);
+
         Paint paint = new Paint();
         paint.setColor(Color.WHITE);
         paint.setTextSize(80);
         paint.setTextAlign(Paint.Align.CENTER);
         paint.setTypeface(Typeface.create("Calibri", Typeface.BOLD));
-        canvas.drawText("GAME OVER ", screenWidth / 2, 500, paint);
-        canvas.drawText("SCORE: " + score, screenWidth / 2, 600, paint);
+        canvas.drawText("GAME OVER", screenWidth / 2, screenHeight / 2, paint);
+        drawButtonCenter(canvas, screenWidth / 2, screenHeight / 2 + (int) (screenHeight * 90.0 / 720.0), "EXIT");
+        drawButtonCenter(canvas, screenWidth / 2, screenHeight / 2 + (int) (screenHeight * 90.0 / 720.0) + button.getHeight() + (int) (screenHeight * 10.0 / 720.0), "RETRY");
     }
 
     /**
@@ -318,6 +415,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
         } else {
             drawScore(canvas);
             drawPauseButton(canvas);
+            drawLives(canvas);
         }
     }
 
@@ -334,9 +432,17 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
         // Check if the user clicked the screen or released it
         if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            // Check if pause/resume was touched
             if (x >= xPosPause && xPosPause <= xPosPause + pauseBitmap.getWidth() &&
                     y >= yPosPause && y <= yPosPause + pauseBitmap.getHeight()) {
                 paused = !paused;
+            } else if ((paused || gameOver) && x >= exitX && x <= exitX + button.getWidth() &&
+                    y >= exitY && y <= exitY + button.getHeight()) {
+                activity.finish();
+
+            } else if (gameOver && x >= retryX && x <= retryX + button.getWidth() &&
+                    y >= retryY && y <= retryY + button.getHeight()) {
+                resetGame();
             } else {
                 move = true;
             }

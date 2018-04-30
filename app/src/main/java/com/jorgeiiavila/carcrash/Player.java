@@ -29,7 +29,7 @@ public class Player extends Item {
         this.y = screenHeight / 2 - this.height / 2;
         this.x = screenWidth / 2 - this.width / 2;
         this.direction = 1;
-        initialSpeed = speed;
+        initialSpeed = this.speed;
     }
 
     public boolean isMoved() {

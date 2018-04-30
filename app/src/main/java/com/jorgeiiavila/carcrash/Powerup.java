@@ -10,8 +10,6 @@ import java.util.Random;
 
 public class Powerup extends Item {
 
-    int screenWidth;    // width of the phone screen
-    int screenHeight;   // height of the phone screen
     boolean isActive;   //
     int powerUpType;    // Power up type
     // 1: Extra Life
@@ -25,8 +23,6 @@ public class Powerup extends Item {
         super(bitmap, speed);
         this.height = bitmap.getHeight();
         this.width = bitmap.getWidth();
-        screenWidth = Resources.getSystem().getDisplayMetrics().widthPixels;
-        screenHeight = Resources.getSystem().getDisplayMetrics().heightPixels;
         this.isActive = false;
         this.x = (int) (Math.random() * (screenWidth)) - this.width / 2;
         this.y = -(int) (Math.random() * screenHeight) - height;
@@ -43,6 +39,8 @@ public class Powerup extends Item {
 
     public void setActive(boolean active) {
         isActive = active;
+        x = -100;
+        y = -100;
     }
 
     public int getPowerUpType() {

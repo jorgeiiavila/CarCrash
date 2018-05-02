@@ -26,8 +26,8 @@ public class Powerup extends Item {
      * @param speed     // Speed of the power up
      * @param resources // Resources to access pictures
      */
-    public Powerup(Bitmap bitmap, int speed, Resources resources) {
-        super(bitmap, 0, speed);
+    public Powerup(Bitmap bitmap, int speed, Resources resources, int screenHeight) {
+        super(bitmap, 0, speed, screenHeight);
         this.height = bitmap.getHeight();
         this.width = bitmap.getWidth();
         this.isActive = false;

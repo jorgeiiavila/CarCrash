@@ -36,7 +36,7 @@ public abstract class Item {
     public Item(Bitmap bitmap, int x, int y, int width, int height, int speedX, int speedY) {
         this.bitmap = bitmap;
         screenWidth = Resources.getSystem().getDisplayMetrics().widthPixels;
-        screenHeight = Resources.getSystem().getDisplayMetrics().heightPixels;
+        screenHeight = height;
         this.x = x;
         this.y = y;
         this.width = width;
@@ -50,10 +50,10 @@ public abstract class Item {
      * Item partial constructor
      * @param bitmap image of the character
      */
-    public Item(Bitmap bitmap, int speedX, int speedY) {
+    public Item(Bitmap bitmap, int speedX, int speedY, int screenHeight) {
         this.bitmap = bitmap;
         screenWidth = Resources.getSystem().getDisplayMetrics().widthPixels;
-        screenHeight = Resources.getSystem().getDisplayMetrics().heightPixels;
+        this.screenHeight = screenHeight;
         this.speedX = (int) round(screenWidth * (speedX / 720.0));
         this.speedY = (int) round(screenHeight * (speedY / 1198.0));
     }

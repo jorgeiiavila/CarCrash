@@ -28,8 +28,8 @@ public class Player extends Item {
      * @param bitmap image of the character
      * @param speed  speedX of the character
      */
-    public Player(Bitmap bitmap, Bitmap immune, Bitmap damaged2, Bitmap damaged1, int speed) {
-        super(bitmap, speed, 0);
+    public Player(Bitmap bitmap, Bitmap immune, Bitmap damaged2, Bitmap damaged1, int speed, int screenHeight) {
+        super(bitmap, speed, 0, screenHeight);
         this.height = bitmap.getHeight();
         this.width = bitmap.getWidth();
         this.y = screenHeight / 2 - this.height / 2;
@@ -109,24 +109,24 @@ public class Player extends Item {
         if (moved) {
             // Check if player is onscreen
             if (screenX < screenWidth / 2) {
-                if (x > 0) {
+                if (x >  (int)(screenWidth*6.0/412.0)) {
                     if (direction > 0) {
                         resetSpeedAndDirection(-1);
                     }
                     setSpeedX(getSpeedX() + (int) round(screenWidth * (1.0 / 720.0)));
                     setX(getX() - getSpeedX());
                 } else {
-                    setX(0);
+                    setX((int)(screenWidth*6.0/412.0));
                 }
             } else {
-                if (x + width < screenWidth) {
+                if (x + width < screenWidth - (int)(screenWidth*21.0/412.0)) {
                     if (direction < 0) {
                         resetSpeedAndDirection(1);
                     }
                     setSpeedX(getSpeedX() + (int) round(screenWidth * (1.0 / 720.0)));
                     setX(getX() + getSpeedX());
                 } else {
-                    setX(screenWidth - width);
+                    setX(screenWidth - width - (int)(screenWidth*21.0/412.0));
                 }
             }
         } else {

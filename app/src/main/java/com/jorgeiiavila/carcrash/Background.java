@@ -9,7 +9,6 @@ import android.graphics.Canvas;
 
 public class Background extends Item {
 
-    private Bitmap background2; // second image for the infinite loop
     private int y2; // y position of the second image
 
     /**
@@ -23,8 +22,8 @@ public class Background extends Item {
      */
     public Background(Bitmap bitmap, int x, int y, int width, int height, int speed) {
         super(bitmap, x, y, width, height, 0, speed);
-        background2 = bitmap;
-        y2 = -background2.getHeight();
+        this.bitmap = Bitmap.createScaledBitmap(bitmap, width, height, false);
+        y2 = -height;
     }
 
     /**
@@ -34,7 +33,7 @@ public class Background extends Item {
     @Override
     public void draw(Canvas canvas) {
         canvas.drawBitmap(bitmap, x, y, null);
-        canvas.drawBitmap(background2, x, y2, null);
+        canvas.drawBitmap(bitmap, x, y2, null);
     }
 
     /**
@@ -45,12 +44,12 @@ public class Background extends Item {
         y += speedY;
         y2 += speedY;
 
-        if (y > bitmap.getHeight()) {
-            y = -bitmap.getHeight();
+        if (y >= bitmap.getHeight()) {
+            y = y2 - height;
         }
 
-        if (y2 > bitmap.getHeight()) {
-            y2 = -background2.getHeight();
+        if (y2 >= bitmap.getHeight()) {
+            y2 = y - height;
         }
     }
 }

@@ -9,13 +9,17 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Point;
 import android.graphics.Typeface;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.media.MediaPlayer;
+import android.view.Display;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.view.Window;
+import android.view.WindowManager;
 
 import java.util.ArrayList;
 
@@ -124,7 +128,11 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
         thread.setRunning(true);
         thread.start();
         screenWidth = Resources.getSystem().getDisplayMetrics().widthPixels;
-        screenHeight = Resources.getSystem().getDisplayMetrics().heightPixels;
+        WindowManager wm = ((WindowManager) activity.getSystemService(Context.WINDOW_SERVICE));
+        Display display = wm.getDefaultDisplay();
+        Point screenSize = new Point();
+        display.getRealSize(screenSize);
+        screenHeight = screenSize.y;
         options = new BitmapFactory.Options();
         options.inScaled = false;
         bg = BitmapFactory.decodeResource(getResources(), R.drawable.background_shade, options);
@@ -137,7 +145,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
         livesPosX = (int) (screenWidth - livesBm3.getWidth() - screenWidth * (24.0 / 412.0));
         livesPosY = scorePosY + (int) (screenHeight * (10.0 / 732.0));
         doublePointsX = screenWidth / 2 - doublePoints.getWidth() / 2;
-        doublePointsY = screenHeight - doublePoints.getHeight();
+        doublePointsY = screenHeight - doublePoints.getHeight() - (int) (screenHeight * (20.0 / 720.0));
         resumeBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.resume_cta, options);
         pauseBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.pause_cta, options);
         xPosPause = screenWidth * (24.0 / 412.0);
@@ -184,7 +192,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
                 damagedCar1 = BitmapFactory.decodeResource(getResources(), R.drawable.player_red_3, options);
                 break;
         }
-        player = new Player(playerBitmap, immuneCar, damagedCar2, damagedCar1, 6);
+        player = new Player(playerBitmap, immuneCar, damagedCar2, damagedCar1, 6, screenHeight);
     }
 
     /**
@@ -197,9 +205,9 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
         enemies = new ArrayList<>();
         int numOfEnemies = HandleScreenSizes.numOfEnemies(screenWidth);
         for (int i = 0; i < numOfEnemies; i++) {
-            enemies.add(new Enemy(enemyBitmapUp, enemyBitmapDown, 10));
+            enemies.add(new Enemy(enemyBitmapUp, enemyBitmapDown, 10, screenHeight));
         }
-        powerup = new Powerup(BitmapFactory.decodeResource(getResources(), R.drawable.powerup_extra_life, options), 10, getResources());
+        powerup = new Powerup(BitmapFactory.decodeResource(getResources(), R.drawable.powerup_extra_life, options), 10, getResources(), screenHeight);
         this.powerupPointsX2 = false;
         this.powerupImmunity = false;
         this.timeToDisplayPowerUp = 0;
@@ -390,6 +398,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
                     for (int i = 0; i < enemies.size(); i++) {
                         enemies.get(i).setInitialSpeed(enemies.get(i).getInitialSpeed()+1);
                     }
+                    background.setSpeedY(background.getSpeedY()+2);
                 }
 
                 // Check if game ended

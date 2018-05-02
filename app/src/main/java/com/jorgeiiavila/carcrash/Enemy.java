@@ -21,8 +21,8 @@ public class Enemy extends Item {
      * @param bitmapDown image of the character going down
      * @param speed speedY of the enemy
      */
-    public Enemy(Bitmap bitmapUp, Bitmap bitmapDown, int speed) {
-        super(bitmapUp, 0, speed);
+    public Enemy(Bitmap bitmapUp, Bitmap bitmapDown, int speed, int screenHeight) {
+        super(bitmapUp, 0, speed, screenHeight);
         this.height = bitmap.getHeight();
         this.width = bitmap.getWidth();
         this.initialSpeed = speedY;
@@ -63,7 +63,7 @@ public class Enemy extends Item {
             this.y = -(int)(Math.random() * screenHeight) - height;
             this.speedY = this.initialSpeed * 2;
         }
-        this.x = (int) (Math.random() * (screenWidth - width - (screenWidth*6/732))) + (screenWidth*6/732);
+        this.x = (int) (Math.random() * (screenWidth - width - (int)(screenWidth*6.0/412.0) - (int)(screenWidth*21/412.0))) + (int)(screenWidth*6.0/412.0);
     }
 
     /**

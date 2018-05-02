@@ -11,11 +11,11 @@ public class HandleScreenSizes {
         }
 
         if (screenWidth >= 1080 && screenWidth <= 1200) {
-            return 10;
+            return 8;
         }
 
         if (screenWidth >= 1440 && screenWidth <= 1600) {
-            return 15;
+            return 12;
         }
         return 5;
     }

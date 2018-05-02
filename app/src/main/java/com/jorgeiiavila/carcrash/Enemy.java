@@ -30,8 +30,16 @@ public class Enemy extends Item {
         if (!goesUp) {
             this.bitmap = bitmapDown;
         }
-        animationDown = new Animation(Assets.enemiesDown, 100);
-        animationUp = new Animation(Assets.enemiesUp, 100);
+        animationDown = new Animation(Assets.enemiesDown, 1000);
+        animationUp = new Animation(Assets.enemiesUp, 1000);
+    }
+
+    public int getInitialSpeed() {
+        return initialSpeed;
+    }
+
+    public void setInitialSpeed(int initialSpeed) {
+        this.initialSpeed = initialSpeed;
     }
 
     /**
@@ -55,7 +63,7 @@ public class Enemy extends Item {
             this.y = -(int)(Math.random() * screenHeight) - height;
             this.speedY = this.initialSpeed * 2;
         }
-        this.x = (int) (Math.random() * (screenWidth)) - this.width/2;
+        this.x = (int) (Math.random() * (screenWidth - width - (screenWidth*6/732))) + (screenWidth*6/732);
     }
 
     /**

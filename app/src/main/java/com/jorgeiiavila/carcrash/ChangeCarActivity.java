@@ -39,9 +39,9 @@ public class ChangeCarActivity extends Activity implements ChangeCarAdapter.Adap
         playerIdCars = new ArrayList<>();
 
         // Creating possible options
-        playerIdCars.add(R.drawable.player_red);
-        playerIdCars.add(R.drawable.player_black);
-        playerIdCars.add(R.drawable.player_orange);
+        playerIdCars.add(R.drawable.player_red_pretty);
+        playerIdCars.add(R.drawable.player_black_pretty);
+        playerIdCars.add(R.drawable.player_orange_pretty);
 
         // Recycler View
         RecyclerView recyclerView = findViewById(R.id.changeCarRecyclerView);

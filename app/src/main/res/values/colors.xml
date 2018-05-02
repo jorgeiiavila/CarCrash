@@ -5,4 +5,5 @@
     <color name="colorAccent">#FF4081</color>
     <color name="carCrashGreen">#59b28c</color>
     <color name="carCrashDarkGreen">#276d4c</color>
+    <color name="carCrashTextGrey">#a6a6a6</color>
 </resources>

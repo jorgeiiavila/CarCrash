@@ -19,6 +19,8 @@ public class Player extends Item {
     private Bitmap damaged2; // damaged Bitmap
     private Bitmap damaged1; // damaged Bitmap
     private boolean immuneB; // Check if immunity is active
+    private int lives;
+
 
     /**
      * Player constructor
@@ -38,6 +40,15 @@ public class Player extends Item {
         this.damaged2 = damaged2;
         this.damaged1 = damaged1;
         immuneB = false;
+        lives = 3;
+    }
+
+    /**
+     * Set lives
+     * @param lives
+     */
+    public void setLives(int lives) {
+        this.lives = lives;
     }
 
     /**
@@ -75,7 +86,17 @@ public class Player extends Item {
         if (immuneB) {
             canvas.drawBitmap(immune, x, y, null);
         } else {
-            canvas.drawBitmap(bitmap, x, y, null);
+            switch (lives) {
+                case 2:
+                    canvas.drawBitmap(damaged2, x, y, null);
+                    break;
+                case 1:
+                    canvas.drawBitmap(damaged1, x, y, null);
+                    break;
+                default:
+                    canvas.drawBitmap(bitmap, x, y, null);
+                    break;
+            }
         }
     }
 

@@ -10,7 +10,9 @@ import android.view.Window;
 public class GameActivity extends Activity {
 
     private MediaPlayer backgroundMusic;
+    private MediaPlayer siren;
     private Boolean music;
+    private Boolean fxSounds;
 
     private Preferences preferences = new Preferences();
     private SharedPreferences sharedPreferences;
@@ -36,13 +38,21 @@ public class GameActivity extends Activity {
 
         // Get preferences
         this.music = sharedPreferences.getBoolean(preferences.getMusicKey(), true);
+        this.fxSounds = sharedPreferences.getBoolean(preferences.getFxSoundsKey(), true);
 
         // Start background music
         if (music) {
             backgroundMusic = MediaPlayer.create(GameActivity.this, R.raw.background_music);
             backgroundMusic.setLooping(true);
-            backgroundMusic.setVolume(10.0f, 3.0f);
+            backgroundMusic.setVolume(10.0f, 10.0f);
             backgroundMusic.start();
+        }
+
+        if (fxSounds) {
+            siren = MediaPlayer.create(GameActivity.this, R.raw.siren);
+            siren.setLooping(true);
+            siren.setVolume(10.0f, 10.0f);
+            siren.start();
         }
 
         // Runs game
@@ -56,6 +66,10 @@ public class GameActivity extends Activity {
         // Stop background music
         if (music) {
             backgroundMusic.stop();
+        }
+
+        if (fxSounds) {
+            siren.stop();
         }
 
     }

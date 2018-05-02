@@ -87,13 +87,13 @@ public class MainActivity extends Activity {
         int currentCar = sharedPreferences.getInt(preferences.getCarImageKey(), 0);
         switch (currentCar) {
             case 0:
-                carImage.setImageDrawable(getDrawable(R.drawable.player_red));
+                carImage.setImageDrawable(getDrawable(R.drawable.player_red_pretty));
                 break;
             case 1:
-                carImage.setImageDrawable(getDrawable(R.drawable.player_black));
+                carImage.setImageDrawable(getDrawable(R.drawable.player_black_pretty));
                 break;
             case 2:
-                carImage.setImageDrawable(getDrawable(R.drawable.player_orange));
+                carImage.setImageDrawable(getDrawable(R.drawable.player_orange_pretty));
                 break;
             default:
                 break;

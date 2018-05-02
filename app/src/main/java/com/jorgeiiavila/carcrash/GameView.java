@@ -12,6 +12,7 @@ import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
+import android.media.MediaPlayer;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -46,6 +47,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
     private int screenWidth; // Device screen width
     private int screenHeight; // Device screen height
     private int score; // Score of the game
+    private int scoreAcum; // Score acum to make game harder
     private boolean paused; // Controls if the game is paused
     private int lives; // Lives of the player
     private boolean gameOver; // Check if game is over
@@ -73,6 +75,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
     private Paint paint2; // Paint2
     private Bitmap bg; // Pause/GameOver background
     private Bitmap plus10; // +10 Bitmap
+    private Bitmap plus20; // +20 Bitmap
     private Bitmap doublePoints; // Double points Bitmap
     private Bitmap damagedCar2; // Damaged car
     private Bitmap damagedCar1; // Damaged car
@@ -90,6 +93,10 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
     private long lastUpdate;
     private boolean showPlus10;
     private long plusTenTime;
+
+    private Boolean fxSounds;
+    private MediaPlayer crashSound;
+    private MediaPlayer engineRev;
 
     /**
      * Contructor of GameView
@@ -126,8 +133,6 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
         livesBm1 = BitmapFactory.decodeResource(getResources(), R.drawable.lives_1, options);
         livesBm0 = BitmapFactory.decodeResource(getResources(), R.drawable.lives_0, options);
         doublePoints = BitmapFactory.decodeResource(getResources(), R.drawable.double_points, options);
-        damagedCar2 = BitmapFactory.decodeResource(getResources(), R.drawable.player_black_2, options);
-        damagedCar1 = BitmapFactory.decodeResource(getResources(), R.drawable.player_black_3, options);
         scorePosY = (int) (screenHeight * (28.0 / 732.0)) + 50;
         livesPosX = (int) (screenWidth - livesBm3.getWidth() - screenWidth * (24.0 / 412.0));
         livesPosY = scorePosY + (int) (screenHeight * (10.0 / 732.0));
@@ -138,6 +143,13 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
         xPosPause = screenWidth * (24.0 / 412.0);
         yPosPause = screenHeight * (24.0 / 732.0);
         plus10 = BitmapFactory.decodeResource(getResources(), R.drawable.plus10, options);
+        plus20 = BitmapFactory.decodeResource(getResources(), R.drawable.plus20, options);
+        crashSound = MediaPlayer.create(activity, R.raw.crash);
+        crashSound.setVolume(10.0f, 10.0f);
+        Preferences preferences = new Preferences();
+        fxSounds = sharedPreferences.getBoolean(preferences.getFxSoundsKey(), true);
+        engineRev = MediaPlayer.create(activity, R.raw.rev);
+        engineRev.setVolume(10.0f,10.0f);
         initPaint();
         resetGame();
     }
@@ -149,23 +161,27 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
         Preferences preferences = new Preferences();
         Bitmap playerBitmap;
         Bitmap immuneCar; // Immune car Bitmap
+        Bitmap damagedCar2;
+        Bitmap damagedCar1;
         int car = sharedPreferences.getInt(preferences.getCarImageKey(), 0);
         switch (car) {
-            case 0:
-                playerBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.player_red, options);
-                immuneCar = BitmapFactory.decodeResource(getResources(), R.drawable.immune_player_red, options);
-                break;
             case 1:
                 playerBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.player_black, options);
                 immuneCar = BitmapFactory.decodeResource(getResources(), R.drawable.immune_player_black, options);
+                damagedCar2 = BitmapFactory.decodeResource(getResources(), R.drawable.player_black_2, options);
+                damagedCar1 = BitmapFactory.decodeResource(getResources(), R.drawable.player_black_3, options);
                 break;
             case 2:
                 playerBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.player_orange, options);
                 immuneCar = BitmapFactory.decodeResource(getResources(), R.drawable.immune_player_orange, options);
+                damagedCar2 = BitmapFactory.decodeResource(getResources(), R.drawable.player_orange_2, options);
+                damagedCar1 = BitmapFactory.decodeResource(getResources(), R.drawable.player_orange_3, options);
                 break;
             default:
                 playerBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.player_red, options);
                 immuneCar = BitmapFactory.decodeResource(getResources(), R.drawable.immune_player_red, options);
+                damagedCar2 = BitmapFactory.decodeResource(getResources(), R.drawable.player_red_2, options);
+                damagedCar1 = BitmapFactory.decodeResource(getResources(), R.drawable.player_red_3, options);
                 break;
         }
         player = new Player(playerBitmap, immuneCar, damagedCar2, damagedCar1, 6);
@@ -192,6 +208,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
         lives = 3;
         gameOver = false;
         score = 0;
+        scoreAcum = 0;
         paused = false;
         button = BitmapFactory.decodeResource(getResources(), R.drawable.exit_cta, options);
         lastTime = System.currentTimeMillis();
@@ -243,6 +260,10 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
     public void update() {
         if (!gameOver) { // Check if game is over
             if (!paused) { // Check if game is paused
+
+                // Send lives to player
+                player.setLives(this.lives);
+
                 // Update score
                 long currentTime = System.currentTimeMillis();
                 if (currentTime - lastTime >= currentUpdateTime) {
@@ -279,9 +300,27 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
                     player.setMoved(false);
                 }
 
+                // Checks if enemy crash against another enemy
+                for (int i = 0; i < enemies.size(); i++) {
+                    for (int j = 0; j < enemies.size(); j++) {
+                        if (i != j) {
+                            if (enemies.get(i).intersects(enemies.get(j).getBounds())) {
+                                if (fxSounds) {
+                                    crashSound.start();
+                                }
+                                enemies.get(i).restoreEnemy();
+                                enemies.get(j).restoreEnemy();
+                            }
+                        }
+                    }
+                }
+
                 // Checks player collision with enemies
                 for (int i = 0; i < enemies.size(); i++) {
                     if (player.intersects(enemies.get(i).getBounds()) && !this.powerupImmunity) {
+                        if (fxSounds) {
+                            crashSound.start();
+                        }
                         enemies.get(i).restoreEnemy();
                         lives--;
                         if (extra) {
@@ -296,7 +335,11 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
                 // Check if player earned the extra
                 if (extra && !player.intersects(enemies.get(enemyClose).getCloseBounds())) {
-                    score += 10;
+                    if (powerupPointsX2){
+                        score += 20;
+                    } else {
+                        score += 10;
+                    }
                     extra = false;
                     showPlus10 = true;
                     plusTenTime = System.currentTimeMillis();
@@ -310,6 +353,9 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
                 // Check player intersection with the power ups
                 if (player.intersects(powerup.getBounds())) {
+                    if (fxSounds) {
+                        engineRev.start();
+                    }
                     switch (powerup.getPowerUpType()) {
                         case 1:
                             if (lives < 3) {
@@ -337,6 +383,14 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
                 }
                 powerup.update();
                 background.update();
+
+                // Make enemies faster
+                if (score - scoreAcum >= 100 && scoreAcum < 700) {
+                    scoreAcum = score;
+                    for (int i = 0; i < enemies.size(); i++) {
+                        enemies.get(i).setInitialSpeed(enemies.get(i).getInitialSpeed()+1);
+                    }
+                }
 
                 // Check if game ended
                 if (lives == 0) {
@@ -381,7 +435,11 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
     public void drawPlusTen(Canvas canvas) {
         if (showPlus10) {
-            canvas.drawBitmap(plus10, screenWidth / 2 - plus10.getWidth() / 2, screenHeight / 4, null);
+            if (powerupPointsX2) {
+                canvas.drawBitmap(plus20, screenWidth / 2 - plus10.getWidth() / 2, screenHeight / 4, null);
+            } else {
+                canvas.drawBitmap(plus10, screenWidth / 2 - plus10.getWidth() / 2, screenHeight / 4, null);
+            }
         }
     }
 

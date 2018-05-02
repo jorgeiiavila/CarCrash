@@ -13,15 +13,16 @@ import static java.lang.Math.round;
 
 public abstract class Item {
 
-    protected Bitmap bitmap;
-    protected Rect bounds;
+    protected Bitmap bitmap; // Bitmap if the item
+    protected Rect bounds; // Bounds of the item
     protected int x; // x position of item
     protected int y; // y position of item
     protected int width; // Width of the object
     protected int height; // Height of the object
-    protected int speed; // speed of the item
-    protected int screenWidth;
-    protected int screenHeight;
+    protected int speedX; // speedX of the item
+    protected int speedY; // speedY of the item
+    protected int screenWidth; // Width of the device's screen
+    protected int screenHeight; // Height of the device's screen
 
     /**
      * Item full constructor
@@ -30,9 +31,9 @@ public abstract class Item {
      * @param y
      * @param width
      * @param height
-     * @param speed
+     * @param speedX
      */
-    public Item(Bitmap bitmap, int x, int y, int width, int height, int speed) {
+    public Item(Bitmap bitmap, int x, int y, int width, int height, int speedX, int speedY) {
         this.bitmap = bitmap;
         screenWidth = Resources.getSystem().getDisplayMetrics().widthPixels;
         screenHeight = Resources.getSystem().getDisplayMetrics().heightPixels;
@@ -40,7 +41,8 @@ public abstract class Item {
         this.y = y;
         this.width = width;
         this.height = height;
-        this.speed = speed;
+        this.speedX = (int) round(screenWidth * (speedX / 720.0));
+        this.speedY = (int) round(screenHeight * (speedY / 1280.0));
         this.bounds = new Rect(x,y,x+width,y+height);
     }
 
@@ -48,11 +50,12 @@ public abstract class Item {
      * Item partial constructor
      * @param bitmap image of the character
      */
-    public Item(Bitmap bitmap, int speed) {
+    public Item(Bitmap bitmap, int speedX, int speedY) {
         this.bitmap = bitmap;
         screenWidth = Resources.getSystem().getDisplayMetrics().widthPixels;
         screenHeight = Resources.getSystem().getDisplayMetrics().heightPixels;
-        this.speed = (int) round(screenWidth * (speed / 720.0));
+        this.speedX = (int) round(screenWidth * (speedX / 720.0));
+        this.speedY = (int) round(screenHeight * (speedY / 1198.0));
     }
 
     /**
@@ -76,31 +79,45 @@ public abstract class Item {
     }
 
     /**
-     * Return speed
-     * @return speed of the item
+     * Return speedX
+     * @return speedX of the item
      */
-    public int getSpeed() {
-        return speed;
+    public int getSpeedX() {
+        return speedX;
     }
 
     /**
-     * Set speed of the the item
-     * @param speed speed of the item
+     * Set speedX of the the item
+     * @param speedX speedX of the item
      */
-    public void setSpeed(int speed) {
-        this.speed = speed;
+    public void setSpeedX(int speedX) {
+        this.speedX = speedX;
     }
 
-    public int getWidth() {
-        return width;
+    /**
+     * Get speed in Y
+     *
+     * @return speedY
+     */
+    public int getSpeedY() {
+        return speedY;
+    }
+
+    /**
+     * Set speed in Y
+     *
+     * @param speedY speedY
+     */
+    public void setSpeedY(int speedY) {
+        this.speedY = speedY;
     }
 
     /**
      * Get the item character bounds
      * @return
      */
-    public Rect getBounds () {
-        return new Rect(x+((int)(0.47*width)),y+((int)(0.44*width)),x+width-((int)(0.47*width)),y+height-((int)(0.44*width)));
+    public Rect getBounds() {
+        return new Rect(x, y, x + width, y + height);
     }
 
     /**

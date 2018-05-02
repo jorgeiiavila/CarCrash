@@ -4,8 +4,6 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 
-import static java.lang.Math.round;
-
 /**
  * Created by fernandosalazar on 4/10/18.
  */
@@ -13,7 +11,7 @@ import static java.lang.Math.round;
 public class Enemy extends Item {
 
     boolean goesUp; // Determines if the enemy goes up or down
-    int initialSpeed; // Its the base speed of the
+    int initialSpeed; // Its the base speedY of the enemy
     Animation animationDown; // Animation of the enemy down
     Animation animationUp; // Animation of the enemy up
 
@@ -21,20 +19,19 @@ public class Enemy extends Item {
      * Constructor of the enemy
      * @param bitmapUp image of the character going up
      * @param bitmapDown image of the character going down
-     * @param speed speed of the enemy
+     * @param speed speedY of the enemy
      */
     public Enemy(Bitmap bitmapUp, Bitmap bitmapDown, int speed) {
-        super(bitmapUp, speed);
-        this.initialSpeed = speed;
+        super(bitmapUp, 0, speed);
         this.height = bitmap.getHeight();
         this.width = bitmap.getWidth();
+        this.initialSpeed = speedY;
         restoreEnemy();
         if (!goesUp) {
             this.bitmap = bitmapDown;
         }
         animationDown = new Animation(Assets.enemiesDown, 100);
         animationUp = new Animation(Assets.enemiesUp, 100);
-        this.speed = (int) round(screenHeight * (speed / 1280.0));
     }
 
     /**
@@ -53,10 +50,10 @@ public class Enemy extends Item {
         this.goesUp = getRandomBoolean();
         if (this.goesUp) {
             this.y = (int)(Math.random() * screenHeight) + screenHeight;
-            this.speed = this.initialSpeed;
+            this.speedY = this.initialSpeed;
         } else {
             this.y = -(int)(Math.random() * screenHeight) - height;
-            this.speed = this.initialSpeed * 2;
+            this.speedY = this.initialSpeed * 2;
         }
         this.x = (int) (Math.random() * (screenWidth)) - this.width/2;
     }
@@ -80,12 +77,12 @@ public class Enemy extends Item {
     @Override
     public void update() {
         if (goesUp) {
-            y -= speed;
+            y -= speedY;
             if (y <= -this.height) {
                 restoreEnemy();
             }
         } else {
-            y += speed;
+            y += speedY;
             if (y > screenHeight) {
                 restoreEnemy();
             }
@@ -98,6 +95,8 @@ public class Enemy extends Item {
      * Return close bounds
      */
     public Rect getCloseBounds() {
-        return new Rect(x + ((int) (0.47 * width)), y + ((int) (0.44 * width)), x + width - ((int) (0.47 * width)), y + height - ((int) (0.44 * width)));
+        int distX = (int) (screenWidth * 25.0 / 720.0);
+        int distY = (int) (screenHeight * 25.0 / 1198.0);
+        return new Rect(x - distX, y - distY, x + width + distX, y + width + distY);
     }
 }

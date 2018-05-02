@@ -10,6 +10,8 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Typeface;
+import android.hardware.Sensor;
+import android.hardware.SensorManager;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -22,9 +24,12 @@ import java.util.ArrayList;
 
 class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
+    private final int updateTime = 500; // Update score every half second
     Bitmap pauseBitmap; // Pause image
     Bitmap resumeBitmap; // Resume image
     Bitmap button; // Pause/GameOver menu buttons
+    Bitmap enemyBitmapUp; // Enemy Up Bitmap
+    Bitmap enemyBitmapDown; // Enemy Down Bitmap
     SharedPreferences sharedPreferences; // to save the high score
     // Buttons positions
     double xPosPause; // Pause/Resume x
@@ -44,6 +49,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
     private boolean paused; // Controls if the game is paused
     private int lives; // Lives of the player
     private boolean gameOver; // Check if game is over
+    private int scorePosY; // Score position in Y
     // Power Ups variables
     private Powerup powerup; // Power Up object
     private int timeToDisplayPowerUp; // Tells when to display power up
@@ -57,7 +63,6 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
     private int exitY; // Exit button y
     private int retryX; // Retry button x
     private int retryY; // Retry button y
-
     // Bitmap
     private BitmapFactory.Options options; // Bitmap options
     private Bitmap livesBm3; // Three lives bitmap
@@ -67,13 +72,24 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
     private Paint paint; // Paint
     private Paint paint2; // Paint2
     private Bitmap bg; // Pause/GameOver background
-
+    private Bitmap plus10; // +10 Bitmap
+    private Bitmap doublePoints; // Double points Bitmap
+    private Bitmap damagedCar2; // Damaged car
+    private Bitmap damagedCar1; // Damaged car
+    private int doublePointsX; // X position of double points
+    private int doublePointsY; // Y position of double points
     // Positions
-    private double posxLives; // Lives image position in x
-    private double posyLives; // Lives image position in y
-
-    private int scoretime;
-    private long lasttime;
+    private int livesPosX; // Lives image position in x
+    private int livesPosY; // Lives image position in y
+    private int currentUpdateTime;
+    private long lastTime; // Last time checked
+    private boolean extra;
+    private int enemyClose;
+    private SensorManager senSensorManager;
+    private Sensor senAccelerometer;
+    private long lastUpdate;
+    private boolean showPlus10;
+    private long plusTenTime;
 
     /**
      * Contructor of GameView
@@ -109,13 +125,19 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
         livesBm2 = BitmapFactory.decodeResource(getResources(), R.drawable.lives_2, options);
         livesBm1 = BitmapFactory.decodeResource(getResources(), R.drawable.lives_1, options);
         livesBm0 = BitmapFactory.decodeResource(getResources(), R.drawable.lives_0, options);
-        posxLives = screenWidth - livesBm3.getWidth() - screenWidth * (24.0 / 412.0);
-        posyLives = screenHeight * (28.0 * 100.0 / 732.0) / 100.0;
+        doublePoints = BitmapFactory.decodeResource(getResources(), R.drawable.double_points, options);
+        damagedCar2 = BitmapFactory.decodeResource(getResources(), R.drawable.player_black_2, options);
+        damagedCar1 = BitmapFactory.decodeResource(getResources(), R.drawable.player_black_3, options);
+        scorePosY = (int) (screenHeight * (28.0 / 732.0)) + 50;
+        livesPosX = (int) (screenWidth - livesBm3.getWidth() - screenWidth * (24.0 / 412.0));
+        livesPosY = scorePosY + (int) (screenHeight * (10.0 / 732.0));
+        doublePointsX = screenWidth / 2 - doublePoints.getWidth() / 2;
+        doublePointsY = screenHeight - doublePoints.getHeight();
         resumeBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.resume_cta, options);
         pauseBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.pause_cta, options);
-        xPosPause = screenWidth * (24.0 * 100.0 / 412.0) / 100.0;
-        yPosPause = screenHeight * (24.0 * 100.0 / 732.0) / 100.0;
-        scoretime = 500;
+        xPosPause = screenWidth * (24.0 / 412.0);
+        yPosPause = screenHeight * (24.0 / 732.0);
+        plus10 = BitmapFactory.decodeResource(getResources(), R.drawable.plus10, options);
         initPaint();
         resetGame();
     }
@@ -125,22 +147,28 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
      */
     public void loadCar() {
         Preferences preferences = new Preferences();
-        Bitmap playerBitmap = null;
+        Bitmap playerBitmap;
+        Bitmap immuneCar; // Immune car Bitmap
         int car = sharedPreferences.getInt(preferences.getCarImageKey(), 0);
         switch (car) {
             case 0:
                 playerBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.player_red, options);
+                immuneCar = BitmapFactory.decodeResource(getResources(), R.drawable.immune_player_red, options);
                 break;
             case 1:
                 playerBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.player_black, options);
+                immuneCar = BitmapFactory.decodeResource(getResources(), R.drawable.immune_player_black, options);
                 break;
             case 2:
                 playerBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.player_orange, options);
+                immuneCar = BitmapFactory.decodeResource(getResources(), R.drawable.immune_player_orange, options);
                 break;
             default:
+                playerBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.player_red, options);
+                immuneCar = BitmapFactory.decodeResource(getResources(), R.drawable.immune_player_red, options);
                 break;
         }
-        player = new Player(playerBitmap, 6);
+        player = new Player(playerBitmap, immuneCar, damagedCar2, damagedCar1, 6);
     }
 
     /**
@@ -148,22 +176,33 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
      */
     public void resetGame() {
         loadCar();
+        enemyBitmapUp = BitmapFactory.decodeResource(getResources(), R.drawable.police_red, options);
+        enemyBitmapDown = BitmapFactory.decodeResource(getResources(), R.drawable.police_down_red, options);
         enemies = new ArrayList<>();
-        for (int i = 0; i < 5; i++) {
-            enemies.add(new Enemy(BitmapFactory.decodeResource(getResources(), R.drawable.police_blue, options), BitmapFactory.decodeResource(getResources(), R.drawable.police_down_blue, options), 10));
+        int numOfEnemies = HandleScreenSizes.numOfEnemies(screenWidth);
+        for (int i = 0; i < numOfEnemies; i++) {
+            enemies.add(new Enemy(enemyBitmapUp, enemyBitmapDown, 10));
         }
         powerup = new Powerup(BitmapFactory.decodeResource(getResources(), R.drawable.powerup_extra_life, options), 10, getResources());
         this.powerupPointsX2 = false;
         this.powerupImmunity = false;
         this.timeToDisplayPowerUp = 0;
         this.powerupActiveTime = 0;
-        background = new Background(BitmapFactory.decodeResource(getResources(), R.drawable.background, options), 0, 0, screenWidth, screenHeight, 10);
+        background = new Background(BitmapFactory.decodeResource(getResources(), R.drawable.game_background, options), 0, 0, screenWidth, screenHeight, 10);
         lives = 3;
         gameOver = false;
         score = 0;
         paused = false;
         button = BitmapFactory.decodeResource(getResources(), R.drawable.exit_cta, options);
-        lasttime = System.currentTimeMillis();
+        lastTime = System.currentTimeMillis();
+        extra = false;
+//        senSensorManager = (SensorManager) activity.getSystemService(Context.SENSOR_SERVICE);
+//        senAccelerometer = senSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+//        senSensorManager.registerListener(this, senAccelerometer , SensorManager.SENSOR_DELAY_NORMAL);
+        lastUpdate = System.currentTimeMillis();
+        currentUpdateTime = updateTime;
+        showPlus10 = false;
+        plusTenTime = System.currentTimeMillis();
     }
 
     /**
@@ -206,9 +245,9 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
             if (!paused) { // Check if game is paused
                 // Update score
                 long currentTime = System.currentTimeMillis();
-                if (currentTime - lasttime >= scoretime) {
+                if (currentTime - lastTime >= currentUpdateTime) {
                     score++;
-                    lasttime = currentTime;
+                    lastTime = currentTime;
                 }
 
                 // Power Up
@@ -218,15 +257,17 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
                     powerup.generatePowerUp();
                 }
 
+                // Turn off the power ups
                 if (powerupPointsX2 || powerupImmunity) {
                     powerupActiveTime++;
                     if (powerupActiveTime >= powerupLimitTime) {
                         powerupActiveTime = 0;
                         if (powerupPointsX2) {
-                            scoretime *= 2;
+                            currentUpdateTime = updateTime;
                         }
                         powerupPointsX2 = false;
                         powerupImmunity = false;
+                        player.setImmuneB(false);
                     }
                 }
 
@@ -243,9 +284,31 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
                     if (player.intersects(enemies.get(i).getBounds()) && !this.powerupImmunity) {
                         enemies.get(i).restoreEnemy();
                         lives--;
+                        if (extra) {
+                            extra = false;
+                        }
+                    } else if (!extra && player.intersects(enemies.get(i).getCloseBounds())) {
+                        // Activate extra if player is very close to an enemy
+                        extra = true;
+                        enemyClose = i;
                     }
                 }
 
+                // Check if player earned the extra
+                if (extra && !player.intersects(enemies.get(enemyClose).getCloseBounds())) {
+                    score += 10;
+                    extra = false;
+                    showPlus10 = true;
+                    plusTenTime = System.currentTimeMillis();
+                }
+
+                if (showPlus10) {
+                    if (System.currentTimeMillis() - plusTenTime >= 1000) {
+                        showPlus10 = false;
+                    }
+                }
+
+                // Check player intersection with the power ups
                 if (player.intersects(powerup.getBounds())) {
                     switch (powerup.getPowerUpType()) {
                         case 1:
@@ -255,10 +318,11 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
                             break;
                         case 2:
                             this.powerupPointsX2 = true;
-                            scoretime = scoretime / 2;
+                            currentUpdateTime = currentUpdateTime / 2;
                             break;
                         case 3:
                             this.powerupImmunity = true;
+                            player.setImmuneB(true);
                             break;
                         default:
                             break;
@@ -278,8 +342,13 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
                 if (lives == 0) {
                     gameOver = true;
                 }
+
+                // Add more enemies
+//                if (score % 100 == 0 && enemies.size() <= 7) {
+//                    enemies.add(new Enemy(enemyBitmapUp, enemyBitmapDown, 10));
+//                }
             }
-        } else {
+        } else { // Update highest score when game is over
             Preferences preferences = new Preferences();
             int highScore = sharedPreferences.getInt(preferences.highScore, 0);
             if (score > highScore) {
@@ -297,13 +366,23 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
         paint = new Paint();
         paint2 = new Paint();
         paint.setColor(Color.WHITE);
-        paint.setTextSize(50);
+        paint.setTextSize(screenWidth * 50 / 720);
         paint.setTextAlign(Paint.Align.CENTER);
-        paint.setTypeface(Typeface.create("Calibri", Typeface.BOLD));
+        paint.setTypeface(Typeface.create("Roboto", Typeface.BOLD));
         paint2.setColor(Color.WHITE);
-        paint2.setTextSize(50);
+        paint2.setTextSize(screenWidth * 50 / 720);
         paint2.setTextAlign(Paint.Align.RIGHT);
-        paint2.setTypeface(Typeface.create("Calibri", Typeface.BOLD));
+        paint2.setTypeface(Typeface.create("Roboto", Typeface.BOLD));
+    }
+
+    public void drawDoublePoints(Canvas canvas) {
+        canvas.drawBitmap(doublePoints, doublePointsX, doublePointsY, null);
+    }
+
+    public void drawPlusTen(Canvas canvas) {
+        if (showPlus10) {
+            canvas.drawBitmap(plus10, screenWidth / 2 - plus10.getWidth() / 2, screenHeight / 4, null);
+        }
     }
 
     /**
@@ -346,16 +425,16 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
     public void drawLives(Canvas canvas) {
         switch (lives) {
             case 3:
-                canvas.drawBitmap(livesBm3, (int) posxLives, (int) posyLives + 50 + 10, null);
+                canvas.drawBitmap(livesBm3, livesPosX, livesPosY, null);
                 break;
             case 2:
-                canvas.drawBitmap(livesBm2, (int) posxLives, (int) posyLives + 50 + 10, null);
+                canvas.drawBitmap(livesBm2, livesPosX, livesPosY, null);
                 break;
             case 1:
-                canvas.drawBitmap(livesBm1, (int) posxLives, (int) posyLives + 50 + 10, null);
+                canvas.drawBitmap(livesBm1, livesPosX, livesPosY, null);
                 break;
             case 0:
-                canvas.drawBitmap(livesBm0, (int) posxLives, (int) posyLives + 50 + 10, null);
+                canvas.drawBitmap(livesBm0, livesPosX, livesPosY, null);
             default:
                 break;
         }
@@ -383,8 +462,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
      * @param canvas
      */
     public void drawScore(Canvas canvas) {
-        double posY = screenHeight * (28.0 * 100.0 / 732.0) / 100.0;
-        canvas.drawText("SCORE " + score, screenWidth - 50, (int) posY + 50, paint2);
+        canvas.drawText("SCORE " + score, screenWidth - 50, scorePosY, paint2);
     }
 
     /**
@@ -427,6 +505,10 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
             drawPauseButton(canvas);
             drawLives(canvas);
             drawScore(canvas);
+            drawPlusTen(canvas);
+            if (powerupPointsX2) {
+                drawDoublePoints(canvas);
+            }
         }
     }
 
@@ -463,4 +545,29 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
         return true;
     }
+//
+//    @Override
+//    public void onSensorChanged(SensorEvent sensorEvent) {
+////        Sensor mySensor = sensorEvent.sensor;
+////
+////        if (mySensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+////            float x = sensorEvent.values[0];
+////            float y = sensorEvent.values[1];
+////            float z = sensorEvent.values[2];
+////
+////            long curTime = System.currentTimeMillis();
+////
+////            if ((curTime - lastU
+/// pdate) > 300) {
+////                lastUpdate = curTime;
+////
+////                player.setScreenX((int) x);
+////            }
+////        }
+//    }
+//
+//    @Override
+//    public void onAccuracyChanged(Sensor sensor, int i) {
+//
+//    }
 }

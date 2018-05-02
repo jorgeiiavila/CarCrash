@@ -12,38 +12,55 @@ import static java.lang.Math.round;
 public class Player extends Item {
 
     private boolean moved; // Determines if there was a touch on the screen
-    private int screenX;
-    private int direction;
-    private int initialSpeed;
+    private int screenX; // X of the position touched by the user
+    private int direction; // Direction in which the player is moving
+    private int initialSpeed; // Original speedX
+    private Bitmap immune; // Immune Bitmap
+    private Bitmap damaged2; // damaged Bitmap
+    private Bitmap damaged1; // damaged Bitmap
+    private boolean immuneB; // Check if immunity is active
 
     /**
      * Player constructor
      *
      * @param bitmap image of the character
-     * @param speed  speed of the character
+     * @param speed  speedX of the character
      */
-    public Player(Bitmap bitmap, int speed) {
-        super(bitmap, speed);
+    public Player(Bitmap bitmap, Bitmap immune, Bitmap damaged2, Bitmap damaged1, int speed) {
+        super(bitmap, speed, 0);
         this.height = bitmap.getHeight();
         this.width = bitmap.getWidth();
         this.y = screenHeight / 2 - this.height / 2;
         this.x = screenWidth / 2 - this.width / 2;
         this.direction = 1;
-        initialSpeed = this.speed;
+        initialSpeed = this.speedX;
+        this.immune = immune;
+        this.damaged2 = damaged2;
+        this.damaged1 = damaged1;
+        immuneB = false;
     }
 
-    public boolean isMoved() {
-        return moved;
+    /**
+     * Set immunity state
+     *
+     * @param immuneB
+     */
+    public void setImmuneB(boolean immuneB) {
+        this.immuneB = immuneB;
     }
 
+    /**
+     * Set moved
+     * @param moved set whether the player should be moved or not
+     */
     public void setMoved(boolean moved) {
         this.moved = moved;
     }
 
-    public int getScreenX() {
-        return screenX;
-    }
-
+    /**
+     * Set screenX
+     * @param screenX x position of the touch of the user
+     */
     public void setScreenX(int screenX) {
         this.screenX = screenX;
     }
@@ -55,7 +72,11 @@ public class Player extends Item {
      */
     @Override
     public void draw(Canvas canvas) {
-        canvas.drawBitmap(bitmap, x, y, null);
+        if (immuneB) {
+            canvas.drawBitmap(immune, x, y, null);
+        } else {
+            canvas.drawBitmap(bitmap, x, y, null);
+        }
     }
 
     /**
@@ -67,24 +88,24 @@ public class Player extends Item {
         if (moved) {
             // Check if player is onscreen
             if (screenX < screenWidth / 2) {
-                if (x + ((int)(0.47*width)) > 0) {
+                if (x > 0) {
                     if (direction > 0) {
                         resetSpeedAndDirection(-1);
                     }
-                    setSpeed(getSpeed() + (int) round(screenWidth * (1.0 / 720.0)));
-                    setX(getX() - getSpeed());
+                    setSpeedX(getSpeedX() + (int) round(screenWidth * (1.0 / 720.0)));
+                    setX(getX() - getSpeedX());
                 } else {
-                    setX(-width / 2);
+                    setX(0);
                 }
             } else {
-                if (x + width - ((int)(0.47*width)) < screenWidth) {
+                if (x + width < screenWidth) {
                     if (direction < 0) {
                         resetSpeedAndDirection(1);
                     }
-                    setSpeed(getSpeed() + (int) round(screenWidth * (1.0 / 720.0)));
-                    setX(getX() + getSpeed());
+                    setSpeedX(getSpeedX() + (int) round(screenWidth * (1.0 / 720.0)));
+                    setX(getX() + getSpeedX());
                 } else {
-                    setX(screenWidth - width / 2);
+                    setX(screenWidth - width);
                 }
             }
         } else {
@@ -92,8 +113,12 @@ public class Player extends Item {
         }
     }
 
+    /**
+     * Reset speedX and direction if the player
+     * @param direction Direction in which the player is moving
+     */
     private void resetSpeedAndDirection(int direction) {
         this.direction = direction;
-        setSpeed(initialSpeed);
+        setSpeedX(initialSpeed);
     }
 }

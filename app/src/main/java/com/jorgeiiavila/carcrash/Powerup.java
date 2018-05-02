@@ -15,12 +15,19 @@ public class Powerup extends Item {
     // 1: Extra Life
     // 2: Points x2
     // 3: Immunity
-    Bitmap extraLifeBitmap;
-    Bitmap pointsX2Bitmap;
-    Bitmap immunityBitmap;
+    Bitmap extraLifeBitmap; // Extra life image
+    Bitmap pointsX2Bitmap; // x2 image
+    Bitmap immunityBitmap; // immunity image
 
+    /**
+     * Constructor
+     *
+     * @param bitmap    Bitmap of the power up
+     * @param speed     // Speed of the power up
+     * @param resources // Resources to access pictures
+     */
     public Powerup(Bitmap bitmap, int speed, Resources resources) {
-        super(bitmap, speed);
+        super(bitmap, 0, speed);
         this.height = bitmap.getHeight();
         this.width = bitmap.getWidth();
         this.isActive = false;
@@ -33,20 +40,27 @@ public class Powerup extends Item {
         this.immunityBitmap = BitmapFactory.decodeResource(resources, R.drawable.powerup_inmune, options);
     }
 
-    public boolean isActive() {
-        return isActive;
-    }
-
+    /**
+     * Set if the power up is active and reset the position
+     * @param active
+     */
     public void setActive(boolean active) {
         isActive = active;
         x = -100;
         y = -100;
     }
 
+    /**
+     * Get Power Up type
+     * @return powerUpType
+     */
     public int getPowerUpType() {
         return powerUpType;
     }
 
+    /**
+     * Generate Power Up
+     */
     public void generatePowerUp() {
         this.x = (int) (Math.random() * (screenWidth)) - this.width / 2;
         this.y = -(int) (Math.random() * screenHeight) - height;
@@ -68,11 +82,19 @@ public class Powerup extends Item {
         this.isActive = true;
     }
 
+    /**
+     * Get bounds of the power up
+     * @return Rect
+     */
     @Override
     public Rect getBounds() {
         return new Rect(x, y, x + width, y + height);
     }
 
+    /**
+     * Draw on canvas
+     * @param canvas
+     */
     @Override
     public void draw(Canvas canvas) {
         if (isActive) {
@@ -80,9 +102,12 @@ public class Powerup extends Item {
         }
     }
 
+    /**
+     * Update position
+     */
     @Override
     public void update() {
-        y += speed;
+        y += speedY;
         if (this.x >= screenHeight) {
             this.isActive = false;
         }

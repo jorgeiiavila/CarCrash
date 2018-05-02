@@ -39,9 +39,21 @@ public class MainActivity extends Activity {
         playBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Preferences preferences = new Preferences();
+                SharedPreferences sharedPreferences = getSharedPreferences(preferences.getFileName(), MODE_PRIVATE);
+                boolean hadPlayedBefore = sharedPreferences.getBoolean(preferences.getFirstTimePlaying(), false);
                 // Creates and execute relation between activities
-                Intent intent = new Intent(MainActivity.this, GameActivity.class);
-                MainActivity.this.startActivity(intent);
+                if (hadPlayedBefore) {
+                    Intent intent = new Intent(MainActivity.this, GameActivity.class);
+                    MainActivity.this.startActivity(intent);
+                } else {
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putBoolean(preferences.getFirstTimePlaying(), true);
+                    editor.apply();
+                    // Go to instructions
+                    Intent intent = new Intent(MainActivity.this, InstructionsActivity.class);
+                    MainActivity.this.startActivity(intent);
+                }
             }
         });
 

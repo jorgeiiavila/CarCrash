@@ -10,6 +10,8 @@ public class Preferences {
     private final String fxSoundsKey = "fxSounds";
     // Car Image
     private final String carImageKey = "carImage";
+    // First time playing
+    private final String firstTimePlaying = "firstTimePlating";
 
     // Getters
     public String getFileName() {
@@ -26,5 +28,9 @@ public class Preferences {
 
     public String getCarImageKey() {
         return carImageKey;
+    }
+
+    public String getFirstTimePlaying() {
+        return firstTimePlaying;
     }
 }
